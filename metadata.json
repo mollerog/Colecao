@@ -1,0 +1,7 @@
+{
+  "name": "Controle de colecões",
+  "description": "A sophisticated beverage can collection manager featuring AI-powered metadata extraction, bulk photo uploading, and advanced filtering.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
