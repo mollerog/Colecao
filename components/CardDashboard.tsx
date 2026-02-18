@@ -1,21 +1,21 @@
 
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { User } from 'firebase/auth';
 import { Firestore, collection, doc, deleteDoc, writeBatch, updateDoc, addDoc, serverTimestamp } from 'firebase/firestore';
-import { Can } from '../types';
-import StatsCards from './StatsCards';
+import { CreditCard } from '../types';
+import CardStatsCards from './CardStatsCards';
 import Toolbar from './Toolbar';
-import Filters from './Filters';
-import CanCard from './CanCard';
-import CanModal from './CanModal';
-import BulkUploadModal from './BulkUploadModal';
-import StatsCharts from './StatsCharts';
-import ImportModal from './ImportModal';
-import ExportModal from './ExportModal';
+import CardFilters from './CardFilters';
+import CardCard from './CardCard';
+import CardModal from './CardModal';
+import CardStatsCharts from './CardStatsCharts';
+import CardImportModal from './CardImportModal';
+import CardExportModal from './CardExportModal';
+import CardBulkUploadModal from './CardBulkUploadModal';
 
-interface DashboardProps {
+interface CardDashboardProps {
   user: User;
-  cans: Can[];
+  cards: CreditCard[];
   db: Firestore;
   auth: any;
   syncStatus: string;
@@ -26,15 +26,15 @@ export type ViewLayout = 'grid' | 'large' | 'list' | 'compact';
 export type SortOption = 'name' | 'recent' | 'year';
 export type SortOrder = 'asc' | 'desc';
 
-const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus, onBack }) => {
+const CardDashboard: React.FC<CardDashboardProps> = ({ user, cards, db, auth, syncStatus, onBack }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilters, setActiveFilters] = useState<any>({});
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isBulkOpen, setIsBulkOpen] = useState(false);
   const [isStatsOpen, setIsStatsOpen] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isExportOpen, setIsExportOpen] = useState(false);
-  const [editingCan, setEditingCan] = useState<Can | null>(null);
+  const [isBulkOpen, setIsBulkOpen] = useState(false);
+  const [editingCard, setEditingCard] = useState<CreditCard | null>(null);
   
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isSelectionMode, setIsSelectionMode] = useState(false);
@@ -57,50 +57,37 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
     return () => window.removeEventListener('keydown', handleEsc);
   }, [selectedIds.size]);
 
-  const processedCans = useMemo(() => {
-    let result = [...cans];
+  const processedCards = useMemo(() => {
+    let result = [...cards];
     if (searchTerm) {
       const lower = searchTerm.toLowerCase();
       result = result.filter(c => 
-        c.brand.toLowerCase().includes(lower) ||
-        (c.name && c.name.toLowerCase().includes(lower)) ||
-        c.group.toLowerCase().includes(lower) ||
-        c.imageDesc.toLowerCase().includes(lower) ||
+        c.cardName.toLowerCase().includes(lower) ||
+        c.issuer.toLowerCase().includes(lower) ||
+        c.network.toLowerCase().includes(lower) ||
+        c.category.toLowerCase().includes(lower) ||
         (c.year && c.year.toLowerCase().includes(lower))
       );
     }
     Object.entries(activeFilters).forEach(([key, value]) => {
-      if (value === '__BLANK__') {
-        result = result.filter(c => {
-          const val = (c as any)[key];
-          return val === undefined || val === null || String(val).trim() === '';
-        });
-      } else if (value) {
+      if (value) {
         result = result.filter(c => String((c as any)[key] || '').trim() === String(value).trim());
       }
     });
     result.sort((a, b) => {
-      let comparison = 0;
-      if (sortBy === 'name') {
-        const strA = (a.brand + (a.name || '')).toLowerCase();
-        const strB = (b.brand + (b.name || '')).toLowerCase();
-        comparison = strA.localeCompare(strB);
-      } else if (sortBy === 'year') {
-        comparison = (parseInt(a.year || '0') || 0) - (parseInt(b.year || '0') || 0);
-      } else {
-        const timeA = a.updatedAt?.seconds || 0;
-        const timeB = b.updatedAt?.seconds || 0;
-        comparison = timeA - timeB;
-      }
-      return sortOrder === 'asc' ? comparison : comparison * -1;
+      let comp = 0;
+      if (sortBy === 'name') comp = a.cardName.localeCompare(b.cardName);
+      else if (sortBy === 'year') comp = (parseInt(a.year || '0') || 0) - (parseInt(b.year || '0') || 0);
+      else comp = (a.updatedAt?.seconds || 0) - (b.updatedAt?.seconds || 0);
+      return sortOrder === 'asc' ? comp : comp * -1;
     });
     return result;
-  }, [cans, searchTerm, activeFilters, sortBy, sortOrder]);
+  }, [cards, searchTerm, activeFilters, sortBy, sortOrder]);
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Excluir esta lata permanentemente?')) return;
+    if (!confirm('Excluir este cartão permanentemente?')) return;
     try {
-      await deleteDoc(doc(db, 'users', user.uid, 'cans', id));
+      await deleteDoc(doc(db, 'users', user.uid, 'cards', id));
       setSelectedIds(prev => {
         const next = new Set(prev);
         next.delete(id);
@@ -111,10 +98,10 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
 
   const handleBulkDelete = async () => {
     if (selectedIds.size === 0) return;
-    if (!confirm(`Excluir permanentemente as ${selectedIds.size} latas selecionadas?`)) return;
+    if (!confirm(`Excluir permanentemente os ${selectedIds.size} cartões selecionados?`)) return;
     try {
       const batch = writeBatch(db);
-      selectedIds.forEach(id => { batch.delete(doc(db, 'users', user.uid, 'cans', id)); });
+      selectedIds.forEach(id => { batch.delete(doc(db, 'users', user.uid, 'cards', id)); });
       await batch.commit();
       setSelectedIds(new Set());
       setIsSelectionMode(false);
@@ -123,11 +110,11 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
   };
 
   const handleClearAll = async () => {
-    if (cans.length === 0) return;
-    const confirmText = prompt(`Para apagar todas as ${cans.length} latas, digite: DELETAR TUDO`);
+    if (cards.length === 0) return;
+    const confirmText = prompt(`Para apagar todos os ${cards.length} cartões, digite: DELETAR TUDO`);
     if (confirmText === 'DELETAR TUDO') {
       const batch = writeBatch(db);
-      cans.forEach(c => { batch.delete(doc(db, 'users', user.uid, 'cans', c.id)); });
+      cards.forEach(c => { batch.delete(doc(db, 'users', user.uid, 'cards', c.id)); });
       await batch.commit();
       setSelectedIds(new Set());
       setIsSelectionMode(false);
@@ -137,14 +124,14 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
 
   const handleSave = async (data: any) => {
     try {
-      const cansRef = collection(db, 'users', user.uid, 'cans');
-      if (editingCan) {
-        await updateDoc(doc(db, 'users', user.uid, 'cans', editingCan.id), { ...data, updatedAt: serverTimestamp() });
+      const cardsRef = collection(db, 'users', user.uid, 'cards');
+      if (editingCard) {
+        await updateDoc(doc(db, 'users', user.uid, 'cards', editingCard.id), { ...data, updatedAt: serverTimestamp() });
       } else {
-        await addDoc(cansRef, { ...data, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+        await addDoc(cardsRef, { ...data, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
       }
       setIsModalOpen(false);
-      setEditingCan(null);
+      setEditingCard(null);
     } catch (e) { alert("Erro ao salvar"); }
   };
 
@@ -158,26 +145,14 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
   };
 
   const handleToggleSelectAll = () => {
-    const allCurrentlyVisibleIds = processedCans.map(c => c.id);
-    const areAllVisibleSelected = allCurrentlyVisibleIds.every(id => selectedIds.has(id));
-    if (areAllVisibleSelected) {
-      setSelectedIds(prev => {
-        const next = new Set(prev);
-        allCurrentlyVisibleIds.forEach(id => next.delete(id));
-        return next;
-      });
-    } else {
-      setSelectedIds(prev => {
-        const next = new Set(prev);
-        allCurrentlyVisibleIds.forEach(id => next.add(id));
-        return next;
-      });
-    }
-  };
-
-  const handleExitSelection = () => {
-    setSelectedIds(new Set());
-    setIsSelectionMode(false);
+    const allVisible = processedCards.map(c => c.id);
+    const allSelected = allVisible.every(id => selectedIds.has(id));
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (allSelected) allVisible.forEach(id => next.delete(id));
+      else allVisible.forEach(id => next.add(id));
+      return next;
+    });
   };
 
   const sectionClass = "max-w-7xl mx-auto bg-white/10 backdrop-blur-2xl border border-white/20 rounded-[40px] shadow-2xl p-6 transition-all duration-300";
@@ -189,19 +164,11 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
     list: "flex flex-col gap-4"
   }[viewLayout];
 
-  const allVisibleSelected = processedCans.length > 0 && processedCans.every(c => selectedIds.has(c.id));
-
   return (
     <div className="min-h-screen gradient-bg">
       <header className="text-white pt-8 pb-12 px-4 text-center">
         <div className="max-w-7xl mx-auto flex justify-between items-center mb-8 px-4">
-          <button 
-            onClick={onBack}
-            className="bg-white/20 hover:bg-white/30 text-[10px] font-black uppercase tracking-[2px] px-8 py-3 rounded-full transition-all border border-white/10"
-          >
-            ← Painel Principal
-          </button>
-          
+          <button onClick={onBack} className="bg-white/20 hover:bg-white/30 text-[10px] font-black uppercase tracking-[2px] px-8 py-3 rounded-full transition-all border border-white/10">← Painel Principal</button>
           <button 
             onClick={() => setIsStatsOpen(true)}
             className="bg-white text-indigo-600 hover:scale-105 active:scale-95 text-[10px] font-black uppercase tracking-[2px] px-8 py-3 rounded-full transition-all shadow-xl"
@@ -212,17 +179,16 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
 
         <div className="flex flex-col items-center gap-2 mb-2">
           <div className="flex items-center justify-center gap-4">
-             <span className="text-5xl drop-shadow-lg">🥤</span>
-             <h1 className="text-6xl font-black tracking-tighter text-white">Minha coleção de latas</h1>
+             <span className="text-5xl drop-shadow-lg">💳</span>
+             <h1 className="text-6xl font-black tracking-tighter text-white">Meus Cartões</h1>
           </div>
           <p className="text-white/60 text-sm font-bold uppercase tracking-widest">{user.email}</p>
         </div>
 
-        <StatsCards cans={cans} />
+        <CardStatsCards cards={cards} />
       </header>
 
       <main className="max-w-7xl mx-auto px-4 pb-40 space-y-6">
-        {/* 1. Toolbar Section */}
         <div className={sectionClass}>
            <Toolbar 
             onOpenImport={() => setIsImportOpen(true)} 
@@ -231,22 +197,16 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
           />
         </div>
 
-        {/* 2. Filters Section */}
         <div className={sectionClass}>
-          <Filters 
-            cans={cans} 
-            activeFilters={activeFilters} 
-            setActiveFilters={setActiveFilters} 
-          />
+          <CardFilters cards={cards} activeFilters={activeFilters} setActiveFilters={setActiveFilters} />
         </div>
 
-        {/* 3. Search Bar Section */}
         <div className={sectionClass}>
           <div className="bg-white/95 rounded-[32px] p-2 flex items-center relative overflow-hidden shadow-sm border border-white">
             <span className="absolute left-6 text-2xl z-10">🔍</span>
             <input 
               type="text" 
-              placeholder="O que você está procurando? (Marca, Nome, Ano...)"
+              placeholder="Pesquisar cartões (Nome, Banco, Bandeira...)"
               className="w-full pl-16 pr-6 py-4 rounded-[24px] bg-transparent outline-none text-xl font-bold text-gray-800 placeholder:text-gray-300 transition-all"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -254,21 +214,14 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
           </div>
         </div>
 
-        {/* 4. Minimal Controls Area - Aligned to the Right */}
         <div className="max-w-7xl mx-auto">
-          {/* Progress Separator */}
           <div className="flex items-center justify-center gap-6 w-full mb-4">
              <div className="h-[1px] bg-white/20 flex-1 rounded-full"></div>
-             <p className="text-[12px] font-black text-white uppercase tracking-[5px] whitespace-nowrap">
-                {processedCans.length} Itens na Listagem
-             </p>
+             <p className="text-[12px] font-black text-white uppercase tracking-[5px] whitespace-nowrap">{processedCards.length} Cartões na Listagem</p>
              <div className="h-[1px] bg-white/20 flex-1 rounded-full"></div>
           </div>
 
-          {/* New Subtle Controls Bar - Right Aligned */}
           <div className="flex flex-wrap items-center justify-end gap-x-5 gap-y-2 text-white/50 px-4 mb-10 transition-all duration-300">
-            
-            {/* Visualização Ultra Sutil */}
             <div className="flex items-center gap-2">
               <span className="text-[9px] font-black uppercase tracking-[1.5px] opacity-60">Visualização</span>
               <div className="flex items-center gap-0.5">
@@ -286,10 +239,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
                 ))}
               </div>
             </div>
-
             <div className="w-[1px] h-3 bg-white/10 hidden sm:block"></div>
-
-            {/* Ordenação Ultra Sutil */}
             <div className="flex items-center gap-2">
               <span className="text-[9px] font-black uppercase tracking-[1.5px] opacity-60">Ordenar:</span>
               <div className="relative group">
@@ -305,25 +255,12 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
                 <span className="absolute right-0 top-1/2 -translate-y-1/2 text-[7px] pointer-events-none group-hover:text-white transition-colors">▾</span>
               </div>
             </div>
-
-            {/* Sort Order Button Ultra Sutil */}
-            <button 
-              onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-              className="text-white/60 hover:text-white transition-all font-black text-base p-1"
-              title={sortOrder === 'asc' ? 'Crescente' : 'Decrescente'}
-            >
-              {sortOrder === 'asc' ? '↑' : '↓'}
-            </button>
-
-            {/* Select All Sutil Link */}
-            {(isSelectionMode || selectedIds.size > 0) && processedCans.length > 0 && (
+            <button onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')} className="text-white/60 hover:text-white transition-all font-black text-base p-1">{sortOrder === 'asc' ? '↑' : '↓'}</button>
+            {(isSelectionMode || selectedIds.size > 0) && (
               <>
                 <div className="w-[1px] h-3 bg-white/10 hidden sm:block"></div>
-                <button 
-                  onClick={handleToggleSelectAll}
-                  className="text-[9px] font-black text-white/30 hover:text-white uppercase tracking-[1.5px] transition-all"
-                >
-                  {allVisibleSelected ? '[ Desmarcar ]' : '[ Selecionar ]'}
+                <button onClick={handleToggleSelectAll} className="text-[9px] font-black text-white/30 hover:text-white uppercase tracking-[1.5px]">
+                  {processedCards.every(c => selectedIds.has(c.id)) ? '[ Desmarcar ]' : '[ Selecionar ]'}
                 </button>
               </>
             )}
@@ -331,24 +268,21 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
         </div>
 
         <div className={gridClass}>
-          {processedCans.map(can => (
-            <CanCard 
-              key={can.id} 
-              can={can} 
+          {processedCards.map(card => (
+            <CardCard 
+              key={card.id} 
+              card={card} 
               variant={viewLayout}
-              onEdit={() => { setEditingCan(can); setIsModalOpen(true); }}
-              onDelete={() => handleDelete(can.id)}
+              onEdit={() => { setEditingCard(card); setIsModalOpen(true); }}
+              onDelete={() => handleDelete(card.id)}
               onViewImage={(url) => setSelectedImage(url)}
-              isSelected={selectedIds.has(can.id)}
-              onToggleSelect={() => {
-                setIsSelectionMode(true);
-                toggleSelect(can.id);
-              }}
+              isSelected={selectedIds.has(card.id)}
+              onToggleSelect={() => { setIsSelectionMode(true); toggleSelect(card.id); }}
               isSelectionMode={isSelectionMode}
             />
           ))}
-          {processedCans.length === 0 && (
-            <div className="col-span-full text-center py-40 bg-white/5 rounded-[64px] backdrop-blur-xl border-2 border-dashed border-white/10">
+          {processedCards.length === 0 && (
+            <div className="col-span-full text-center py-40 bg-white/5 rounded-[64px] border-2 border-dashed border-white/10">
               <div className="text-9xl mb-8 grayscale opacity-20">🕳️</div>
               <h3 className="text-3xl font-black text-white/40 uppercase tracking-[8px]">Vazio</h3>
             </div>
@@ -357,41 +291,41 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
       </main>
 
       <button 
-        onClick={() => { setEditingCan(null); setIsModalOpen(true); }}
-        className="fixed bottom-12 right-12 w-24 h-24 rounded-[32px] bg-[#F43F5E] shadow-2xl text-white text-6xl font-light flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-[60] hover:rotate-90 duration-500 border-4 border-white/20"
+        onClick={() => { setEditingCard(null); setIsModalOpen(true); }}
+        className="fixed bottom-12 right-12 w-24 h-24 rounded-[32px] bg-[#F43F5E] shadow-2xl text-white text-6xl font-light flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-[60] border-4 border-white/20"
       >
         +
       </button>
 
       {(isSelectionMode || selectedIds.size > 0) && (
         <div className="fixed bottom-12 left-1/2 -translate-x-1/2 bg-slate-900/90 backdrop-blur-xl border border-white/10 px-10 py-5 rounded-[32px] shadow-2xl flex items-center gap-10 z-[100] animate-in slide-in-from-bottom-10 duration-500">
-           <div className="flex flex-col">
-              <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Selecionados</span>
-              <span className="text-xl font-black text-white">{selectedIds.size} Itens</span>
+           <div className="flex flex-col text-white">
+              <span className="text-[10px] font-black opacity-40 uppercase tracking-widest">Selecionados</span>
+              <span className="text-xl font-black">{selectedIds.size} Cartões</span>
            </div>
            <div className="h-10 w-[1px] bg-white/10"></div>
            <div className="flex gap-4">
               <button onClick={() => setIsExportOpen(true)} className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all">Exportar Seleção</button>
               <button onClick={handleBulkDelete} className="bg-red-600 hover:bg-red-500 text-white px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all">Excluir Seleção</button>
-              <button onClick={handleExitSelection} className="bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all">Sair da Seleção</button>
+              <button onClick={() => { setSelectedIds(new Set()); setIsSelectionMode(false); }} className="bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all">Sair</button>
            </div>
         </div>
       )}
 
       {selectedImage && (
         <div className="fixed inset-0 z-[200] bg-black/98 backdrop-blur-3xl flex items-center justify-center overflow-hidden" onClick={() => setSelectedImage(null)}>
-          <img src={selectedImage} className="max-w-[95vw] max-h-[95vh] object-contain drop-shadow-2xl rounded-2xl animate-in zoom-in duration-300" alt="Fullscreen" />
-          <button className="absolute top-10 right-10 text-white text-6xl font-thin hover:rotate-90 transition-transform">×</button>
+          <img src={selectedImage} className="max-w-[95vw] max-h-[95vh] object-contain rounded-2xl animate-in zoom-in" alt="Fullscreen" />
+          <button className="absolute top-10 right-10 text-white text-6xl font-thin">×</button>
         </div>
       )}
 
-      {isModalOpen && <CanModal can={editingCan} onClose={() => setIsModalOpen(false)} onSave={handleSave} />}
-      {isBulkOpen && <BulkUploadModal cans={cans} onClose={() => setIsBulkOpen(false)} db={db} user={user} />}
-      {isStatsOpen && <StatsCharts cans={cans} onClose={() => setIsStatsOpen(false)} />}
-      {isImportOpen && <ImportModal db={db} user={user} onClose={() => setIsImportOpen(false)} currentCount={cans.length} onOpenBulk={() => { setIsImportOpen(false); setIsBulkOpen(true); }} />}
-      {isExportOpen && <ExportModal allCans={cans} selectedCans={cans.filter(c => selectedIds.has(c.id))} onClose={() => setIsExportOpen(false)} onEnterSelectionMode={() => { setIsExportOpen(false); setIsSelectionMode(true); }} />}
+      {isModalOpen && <CardModal card={editingCard} onClose={() => setIsModalOpen(false)} onSave={handleSave} />}
+      {isStatsOpen && <CardStatsCharts cards={cards} onClose={() => setIsStatsOpen(false)} />}
+      {isImportOpen && <CardImportModal db={db} user={user} onClose={() => setIsImportOpen(false)} currentCount={cards.length} onOpenBulk={() => { setIsImportOpen(false); setIsBulkOpen(true); }} />}
+      {isExportOpen && <CardExportModal allCards={cards} selectedCards={cards.filter(c => selectedIds.has(c.id))} onClose={() => setIsExportOpen(false)} onEnterSelectionMode={() => { setIsExportOpen(false); setIsSelectionMode(true); }} />}
+      {isBulkOpen && <CardBulkUploadModal cards={cards} onClose={() => setIsBulkOpen(false)} db={db} user={user} />}
     </div>
   );
 };
 
-export default Dashboard;
+export default CardDashboard;

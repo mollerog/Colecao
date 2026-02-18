@@ -1,18 +1,21 @@
 
 import React from 'react';
 import { User, signOut } from 'firebase/auth';
-import { Can } from '../types';
+import { Can, CreditCard } from '../types';
 
 interface CollectionMenuProps {
   user: User;
   cans: Can[];
+  cards: CreditCard[];
   onSelectCans: () => void;
+  onSelectCards: () => void;
   onViewAchievements: () => void;
   auth: any;
 }
 
-const CollectionMenu: React.FC<CollectionMenuProps> = ({ user, cans, onSelectCans, onViewAchievements, auth }) => {
+const CollectionMenu: React.FC<CollectionMenuProps> = ({ user, cans, cards, onSelectCans, onSelectCards, onViewAchievements, auth }) => {
   const cansCount = cans.length;
+  const cardsCount = cards.length;
 
   const handleLogout = () => {
     if (confirm('Deseja sair?')) signOut(auth);
@@ -25,21 +28,23 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({ user, cans, onSelectCan
       desc: 'Gerencie sua coleção de latas de refrigerante, sucos e energéticos.', 
       icon: '🥤', 
       active: true,
-      count: `${cansCount} ITENS`
+      count: `${cansCount} ITENS`,
+      action: onSelectCans
+    },
+    { 
+      id: 'credit', 
+      title: 'Cartão de Crédito', 
+      desc: 'Exiba seus cartões de crédito raros, edições especiais e clássicos.', 
+      icon: '💳', 
+      active: true,
+      count: `${cardsCount} ITENS`,
+      action: onSelectCards
     },
     { 
       id: 'phone', 
       title: 'Cartão Telefônico', 
       desc: 'Novas categorias de colecionáveis serão adicionadas futuramente.', 
       icon: '📞', 
-      active: false,
-      badge: 'EM BREVE'
-    },
-    { 
-      id: 'credit', 
-      title: 'Cartão de Crédito', 
-      desc: 'Novas categorias de colecionáveis serão adicionadas futuramente.', 
-      icon: '💳', 
       active: false,
       badge: 'EM BREVE'
     },
@@ -79,14 +84,11 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({ user, cans, onSelectCan
 
   return (
     <div className="min-h-screen gradient-bg text-white pb-20">
-      {/* Top Bar - Identical to user provided image */}
       <header className="w-full p-6 sm:px-10 flex flex-col sm:flex-row justify-between items-center gap-6 animate-in fade-in duration-700">
         <div className="flex items-center gap-4 w-full sm:w-auto">
-          {/* Avatar Container */}
           <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-3xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center font-black text-2xl shadow-xl shrink-0">
             {user.email?.charAt(0).toUpperCase()}
           </div>
-          {/* User Details */}
           <div className="flex flex-col text-left">
             <span className="text-[9px] font-black uppercase tracking-[2px] text-white/50 leading-none mb-1">
               Colecionador Ativo
@@ -97,7 +99,6 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({ user, cans, onSelectCan
           </div>
         </div>
 
-        {/* Action Buttons */}
         <div className="flex gap-3 w-full sm:w-auto">
           <button 
             onClick={onViewAchievements}
@@ -114,7 +115,6 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({ user, cans, onSelectCan
         </div>
       </header>
 
-      {/* Main Hero Section */}
       <div className="flex flex-col items-center text-center mt-6 mb-16 px-4 animate-in slide-in-from-top-4 duration-1000">
         <div className="text-8xl sm:text-9xl mb-4 drop-shadow-2xl">🏠</div>
         <h1 className="text-6xl sm:text-8xl font-black tracking-tighter mb-4 text-white">
@@ -125,12 +125,11 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({ user, cans, onSelectCan
         </p>
       </div>
 
-      {/* Categories Grid - Preserving all current items */}
       <div className="max-w-7xl mx-auto px-6 sm:px-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
         {categories.map((cat) => (
           <div 
             key={cat.id}
-            onClick={cat.active ? onSelectCans : undefined}
+            onClick={cat.action}
             className={`
               relative flex flex-col p-10 rounded-[48px] border transition-all duration-500
               ${cat.active 
@@ -138,7 +137,6 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({ user, cans, onSelectCan
                 : 'bg-white/5 border-white/10 opacity-60 grayscale-[0.5]'}
             `}
           >
-            {/* Badges */}
             {cat.count && (
               <div className="absolute top-8 right-8 bg-indigo-600 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">
                 {cat.count}
@@ -167,7 +165,6 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({ user, cans, onSelectCan
           </div>
         ))}
         
-        {/* Decorative Empty Card */}
         <div className="bg-white/5 border border-white/10 border-dashed rounded-[48px] p-10 flex flex-col items-center justify-center text-center opacity-40">
            <div className="text-5xl mb-4">✨</div>
            <p className="text-2xl font-black italic tracking-tighter">Em breve mais novidades...</p>

@@ -14,6 +14,21 @@ export interface Can {
   updatedAt: any;
 }
 
+export interface CreditCard {
+  id: string;
+  photo: string;
+  cardName: string;
+  issuer: string;
+  network: string;
+  category: string;
+  year?: string;
+  imageDesc: string;
+  lastFourDigits?: string;
+  description?: string;
+  createdAt: any;
+  updatedAt: any;
+}
+
 export type AuthMode = 'login' | 'register';
 
 export interface BulkMatch {
@@ -22,6 +37,7 @@ export interface BulkMatch {
     fullName: string;
     data: string;
   };
-  can: Can;
+  can?: Can;
+  card?: CreditCard;
   status: 'matched' | 'unmatched';
 }

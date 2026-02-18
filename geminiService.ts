@@ -3,8 +3,6 @@ import { GoogleGenAI, Type } from "@google/genai";
 
 export async function analyzeCanImage(base64Image: string) {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  
-  // Extract the base64 part if it contains the data:image prefix
   const base64Data = base64Image.split(',')[1] || base64Image;
 
   try {
@@ -13,15 +11,8 @@ export async function analyzeCanImage(base64Image: string) {
       contents: [
         {
           parts: [
-            {
-              inlineData: {
-                mimeType: 'image/jpeg',
-                data: base64Data,
-              },
-            },
-            {
-              text: "Analyze this beverage can and provide metadata in JSON format. Fields: group (the parent company, e.g. Coca-Cola Company), acronym (short code for group), brand (the drink brand), name (specific product name), year (approximate release year if visible), size (volume in ml), imageDesc (a technical description for filenames). Return only the JSON.",
-            },
+            { inlineData: { mimeType: 'image/jpeg', data: base64Data } },
+            { text: "Analyze this beverage can and provide metadata in JSON format. Fields: group (the parent company, e.g. Coca-Cola Company), acronym (short code for group), brand (the drink brand), name (specific product name), year (approximate release year if visible), size (volume in ml), imageDesc (a technical description for filenames). Return only the JSON." },
           ],
         },
       ],
@@ -42,10 +33,47 @@ export async function analyzeCanImage(base64Image: string) {
         }
       }
     });
-
     return JSON.parse(response.text || '{}');
   } catch (error) {
     console.error("Gemini Analysis Error:", error);
+    return null;
+  }
+}
+
+export async function analyzeCreditCardImage(base64Image: string) {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const base64Data = base64Image.split(',')[1] || base64Image;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: [
+        {
+          parts: [
+            { inlineData: { mimeType: 'image/jpeg', data: base64Data } },
+            { text: "Analyze this credit card (front view) and provide metadata in JSON format. Do NOT extract full numbers or sensitive CVV. Fields: cardName (e.g. Nubank Ultravioleta), issuer (Bank name), network (Visa, Mastercard, etc), category (Gold, Platinum, Black, etc), year (approximate release/issue year), imageDesc (technical description for filename). Return only JSON." },
+          ],
+        },
+      ],
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            cardName: { type: Type.STRING },
+            issuer: { type: Type.STRING },
+            network: { type: Type.STRING },
+            category: { type: Type.STRING },
+            year: { type: Type.STRING },
+            imageDesc: { type: Type.STRING },
+          },
+          required: ["cardName", "issuer", "network", "category", "imageDesc"]
+        }
+      }
+    });
+    return JSON.parse(response.text || '{}');
+  } catch (error) {
+    console.error("Gemini Analysis Error (Card):", error);
     return null;
   }
 }

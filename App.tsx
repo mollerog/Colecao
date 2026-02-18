@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
-import { AuthMode, Can } from './types';
+import { AuthMode, Can, CreditCard } from './types';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
+import CardDashboard from './components/CardDashboard';
 import CollectionMenu from './components/CollectionMenu';
 import AchievementsView from './components/AchievementsView';
 import { initializeApp } from 'firebase/app';
@@ -26,8 +27,9 @@ const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [cans, setCans] = useState<Can[]>([]);
+  const [cards, setCards] = useState<CreditCard[]>([]);
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'synced' | 'error'>('idle');
-  const [view, setView] = useState<'menu' | 'cans' | 'achievements'>('menu');
+  const [view, setView] = useState<'menu' | 'cans' | 'achievements' | 'cards'>('menu');
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => {
@@ -41,27 +43,27 @@ const App: React.FC = () => {
   useEffect(() => {
     if (!user) {
       setCans([]);
+      setCards([]);
       return;
     }
 
     setSyncStatus('syncing');
+    
+    // Listen for Cans
     const cansRef = collection(db, 'users', user.uid, 'cans');
-    const q = query(cansRef);
+    const unsubCans = onSnapshot(query(cansRef), (snapshot) => {
+      setCans(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Can)));
+    });
 
-    const unsubscribe = onSnapshot(q, 
-      (snapshot) => {
-        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Can));
-        setCans(data);
-        setSyncStatus('synced');
-        setTimeout(() => setSyncStatus('idle'), 2000);
-      },
-      (error) => {
-        console.error("Firestore Error:", error);
-        setSyncStatus('error');
-      }
-    );
+    // Listen for Cards
+    const cardsRef = collection(db, 'users', user.uid, 'cards');
+    const unsubCards = onSnapshot(query(cardsRef), (snapshot) => {
+      setCards(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CreditCard)));
+      setSyncStatus('synced');
+      setTimeout(() => setSyncStatus('idle'), 2000);
+    });
 
-    return () => unsubscribe();
+    return () => { unsubCans(); unsubCards(); };
   }, [user]);
 
   if (loading) {
@@ -83,7 +85,9 @@ const App: React.FC = () => {
         <CollectionMenu 
           user={user} 
           cans={cans} 
+          cards={cards}
           onSelectCans={() => setView('cans')} 
+          onSelectCards={() => setView('cards')}
           onViewAchievements={() => setView('achievements')}
           auth={auth}
         />
@@ -98,6 +102,16 @@ const App: React.FC = () => {
         <Dashboard 
           user={user} 
           cans={cans} 
+          db={db} 
+          auth={auth} 
+          syncStatus={syncStatus}
+          onBack={() => setView('menu')}
+        />
+      )}
+      {view === 'cards' && (
+        <CardDashboard 
+          user={user} 
+          cards={cards} 
           db={db} 
           auth={auth} 
           syncStatus={syncStatus}
