@@ -4,6 +4,7 @@ import { AuthMode, Can } from './types';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import CollectionMenu from './components/CollectionMenu';
+import AchievementsView from './components/AchievementsView';
 import { initializeApp } from 'firebase/app';
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 import { getFirestore, collection, onSnapshot, query } from 'firebase/firestore';
@@ -26,7 +27,7 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [cans, setCans] = useState<Can[]>([]);
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'synced' | 'error'>('idle');
-  const [view, setView] = useState<'menu' | 'cans'>('menu');
+  const [view, setView] = useState<'menu' | 'cans' | 'achievements'>('menu');
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => {
@@ -78,14 +79,22 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen">
-      {view === 'menu' ? (
+      {view === 'menu' && (
         <CollectionMenu 
           user={user} 
           cans={cans} 
           onSelectCans={() => setView('cans')} 
+          onViewAchievements={() => setView('achievements')}
           auth={auth}
         />
-      ) : (
+      )}
+      {view === 'achievements' && (
+        <AchievementsView 
+          cans={cans} 
+          onBack={() => setView('menu')} 
+        />
+      )}
+      {view === 'cans' && (
         <Dashboard 
           user={user} 
           cans={cans} 
