@@ -191,6 +191,9 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
 
   const allVisibleSelected = processedCans.length > 0 && processedCans.every(c => selectedIds.has(c.id));
 
+  const controlContainerClass = "flex bg-black/20 p-1 rounded-[24px] border border-white/5 h-14 items-center";
+  const controlBtnBase = "h-12 flex items-center justify-center rounded-[20px] transition-all duration-300 ease-out font-black uppercase tracking-[2px] text-[10px]";
+
   return (
     <div className="min-h-screen gradient-bg">
       <header className="text-white pt-8 pb-12 px-4 text-center">
@@ -213,7 +216,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
         <div className="flex flex-col items-center gap-2 mb-2">
           <div className="flex items-center justify-center gap-4">
              <span className="text-5xl drop-shadow-lg">🥤</span>
-             <h1 className="text-6xl font-black tracking-tighter text-white">Minha Coleção</h1>
+             <h1 className="text-6xl font-black tracking-tighter text-white">Minha coleção de latas</h1>
           </div>
           <p className="text-white/60 text-sm font-bold uppercase tracking-widest">{user.email}</p>
         </div>
@@ -228,7 +231,6 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
             onOpenImport={() => setIsImportOpen(true)} 
             onOpenExport={() => setIsExportOpen(true)} 
             onClearAll={handleClearAll}
-            openBulk={() => setIsBulkOpen(true)}
           />
         </div>
 
@@ -255,60 +257,64 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
           </div>
         </div>
 
-        {/* 4. Controls/Layout Section */}
-        <div className={`${sectionClass} flex flex-wrap items-center justify-between gap-6`}>
-          <div className="flex flex-col gap-1.5 ml-2">
-            <span className="text-[11px] font-black text-white/50 uppercase tracking-[4px]">Visualização</span>
-            <div className="flex bg-black/20 p-1.5 rounded-[22px] gap-1.5 border border-white/5">
-              {(['grid', 'large', 'compact', 'list'] as ViewLayout[]).map(mode => (
-                <button
-                  key={mode}
-                  onClick={() => setViewLayout(mode)}
-                  className={`w-12 h-10 flex items-center justify-center rounded-[16px] transition-all ${viewLayout === mode ? 'bg-white text-indigo-600 shadow-xl scale-105' : 'text-white/40 hover:text-white/70'}`}
-                  title={mode}
-                >
-                  {mode === 'grid' && <span className="text-lg">⠿</span>}
-                  {mode === 'large' && <span className="text-lg">▣</span>}
-                  {mode === 'compact' && <span className="text-lg">▦</span>}
-                  {mode === 'list' && <span className="text-lg">☰</span>}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-10 mr-2">
-            <div className="flex flex-col gap-1.5">
-              <span className="text-[11px] font-black text-white/50 uppercase tracking-[4px]">Ordenar por</span>
-              <div className="flex bg-black/20 p-1.5 rounded-[22px] gap-1.5 border border-white/5">
-                {(['name', 'recent', 'year'] as SortOption[]).map(option => (
+        {/* 4. Controls Section - Redesigned for Maximum Fluidity and Balance */}
+        <div className={sectionClass}>
+          <div className="flex flex-wrap items-end justify-between gap-10">
+            {/* Visualização Group */}
+            <div className="flex flex-col gap-2.5 ml-2">
+              <span className="text-[11px] font-black text-white/50 uppercase tracking-[4px] ml-1">Visualização</span>
+              <div className={controlContainerClass}>
+                {(['grid', 'large', 'compact', 'list'] as ViewLayout[]).map(mode => (
                   <button
-                    key={option}
-                    onClick={() => setSortBy(option)}
-                    className={`px-8 py-3 rounded-[18px] transition-all text-[10px] font-black uppercase tracking-widest ${sortBy === option ? 'bg-white text-indigo-600 shadow-xl scale-105' : 'text-white/40 hover:text-white/70'}`}
+                    key={mode}
+                    onClick={() => setViewLayout(mode)}
+                    className={`${controlBtnBase} w-14 ${viewLayout === mode ? 'bg-white text-indigo-600 shadow-xl' : 'text-white/40 hover:text-white/80 hover:bg-white/5'}`}
+                    title={mode}
                   >
-                    {option === 'name' ? 'Alfabética' : option === 'recent' ? 'Recentes' : 'Ano'}
+                    {mode === 'grid' && <span className="text-lg">⠿</span>}
+                    {mode === 'large' && <span className="text-lg">▣</span>}
+                    {mode === 'compact' && <span className="text-lg">▦</span>}
+                    {mode === 'list' && <span className="text-lg">☰</span>}
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className="flex flex-col gap-1.5 items-center">
-              <span className="text-[11px] font-black text-white/50 uppercase tracking-[4px]">Sentido</span>
-              <div className="flex bg-black/20 p-1.5 rounded-[22px] gap-1.5 border border-white/5">
-                <button
-                  onClick={() => setSortOrder('asc')}
-                  className={`w-14 h-11 flex items-center justify-center rounded-[16px] transition-all text-xl ${sortOrder === 'asc' ? 'bg-indigo-500 text-white shadow-xl scale-110' : 'text-white/30 hover:text-white/60'}`}
-                  title="Crescente"
-                >
-                  ▲
-                </button>
-                <button
-                  onClick={() => setSortOrder('desc')}
-                  className={`w-14 h-11 flex items-center justify-center rounded-[16px] transition-all text-xl ${sortOrder === 'desc' ? 'bg-indigo-500 text-white shadow-xl scale-110' : 'text-white/30 hover:text-white/60'}`}
-                  title="Decrescente"
-                >
-                  ▼
-                </button>
+            <div className="flex flex-wrap items-end gap-12 mr-2">
+              {/* Ordenação Group */}
+              <div className="flex flex-col gap-2.5">
+                <span className="text-[11px] font-black text-white/50 uppercase tracking-[4px] ml-1">Ordenar por</span>
+                <div className={controlContainerClass}>
+                  {(['name', 'recent', 'year'] as SortOption[]).map(option => (
+                    <button
+                      key={option}
+                      onClick={() => setSortBy(option)}
+                      className={`${controlBtnBase} w-32 ${sortBy === option ? 'bg-white text-indigo-600 shadow-xl' : 'text-white/40 hover:text-white/80 hover:bg-white/5'}`}
+                    >
+                      {option === 'name' ? 'Alfabética' : option === 'recent' ? 'Recentes' : 'Ano'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Order Direction Toggle - Perfectly Balanced with Order Buttons */}
+              <div className="flex items-center">
+                <div className={controlContainerClass}>
+                  <button
+                    onClick={() => setSortOrder('asc')}
+                    className={`${controlBtnBase} w-16 text-xl ${sortOrder === 'asc' ? 'bg-indigo-500 text-white shadow-lg' : 'text-white/30 hover:text-white/60 hover:bg-white/5'}`}
+                    title="Crescente"
+                  >
+                    ▲
+                  </button>
+                  <button
+                    onClick={() => setSortOrder('desc')}
+                    className={`${controlBtnBase} w-16 text-xl ${sortOrder === 'desc' ? 'bg-indigo-500 text-white shadow-lg' : 'text-white/30 hover:text-white/60 hover:bg-white/5'}`}
+                    title="Decrescente"
+                  >
+                    ▼
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -391,7 +397,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
       {isModalOpen && <CanModal can={editingCan} onClose={() => setIsModalOpen(false)} onSave={handleSave} />}
       {isBulkOpen && <BulkUploadModal cans={cans} onClose={() => setIsBulkOpen(false)} db={db} user={user} />}
       {isStatsOpen && <StatsCharts cans={cans} onClose={() => setIsStatsOpen(false)} />}
-      {isImportOpen && <ImportModal db={db} user={user} onClose={() => setIsImportOpen(false)} currentCount={cans.length} />}
+      {isImportOpen && <ImportModal db={db} user={user} onClose={() => setIsImportOpen(false)} currentCount={cans.length} onOpenBulk={() => { setIsImportOpen(false); setIsBulkOpen(true); }} />}
       {isExportOpen && <ExportModal allCans={cans} selectedCans={cans.filter(c => selectedIds.has(c.id))} onClose={() => setIsExportOpen(false)} onEnterSelectionMode={() => { setIsExportOpen(false); setIsSelectionMode(true); }} />}
     </div>
   );

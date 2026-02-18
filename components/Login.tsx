@@ -16,7 +16,7 @@ const Login: React.FC<LoginProps> = ({ auth }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Load saved credentials on mount
+  // Carrega credenciais salvas ao montar o componente
   useEffect(() => {
     const savedEmail = localStorage.getItem('remember_email');
     const savedPassword = localStorage.getItem('remember_password');
@@ -66,7 +66,7 @@ const Login: React.FC<LoginProps> = ({ auth }) => {
         await signInWithEmailAndPassword(auth, email, password);
       }
 
-      // Handle "Remember Me"
+      // Lógica de "Lembrar-me"
       if (rememberMe) {
         localStorage.setItem('remember_email', email);
         localStorage.setItem('remember_password', password);
@@ -85,27 +85,27 @@ const Login: React.FC<LoginProps> = ({ auth }) => {
     <div className="min-h-screen gradient-bg flex items-center justify-center p-6">
       <div className="bg-white rounded-[48px] shadow-2xl w-full max-w-[480px] overflow-hidden animate-in fade-in slide-in-from-bottom-8 duration-700">
         <div className="p-12">
-          {/* Header Section */}
+          {/* Cabeçalho */}
           <div className="text-center mb-10">
-            <h1 className="text-[44px] leading-tight font-black text-[#4F46E5] mb-2 tracking-tighter">
-              Minhas <br /> Coleção
+            <h1 className="text-[44px] leading-tight font-black text-[#4338CA] mb-2 tracking-tighter">
+              Minha <br /> Coleção
             </h1>
-            <p className="text-gray-400 text-sm font-semibold uppercase tracking-[2px]">Gestão Inteligente</p>
+            <p className="text-slate-500 text-sm font-bold uppercase tracking-[2px]">Gestão Inteligente</p>
           </div>
 
           {error && (
-            <div className="bg-red-50 text-red-600 p-4 rounded-2xl text-xs font-bold mb-6 text-center border border-red-100 flex items-center justify-center gap-2 animate-in fade-in zoom-in">
+            <div className="bg-red-50 text-red-700 p-4 rounded-2xl text-xs font-bold mb-6 text-center border border-red-200 flex items-center justify-center gap-2 animate-in fade-in zoom-in">
               <span>⚠️</span> {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">E-mail de acesso</label>
+              <label className="text-[12px] font-black text-slate-700 uppercase tracking-widest ml-1">E-mail de acesso</label>
               <input 
                 type="email" 
                 required 
-                className="w-full px-6 py-4 rounded-2xl bg-gray-50 border-transparent focus:bg-[#EBF2FF] focus:ring-2 focus:ring-[#6366F1] focus:border-transparent outline-none transition-all placeholder:text-gray-300 font-medium"
+                className="w-full px-6 py-4 rounded-2xl bg-white border-2 border-slate-200 focus:bg-white focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none transition-all placeholder:text-slate-400 font-semibold text-slate-800"
                 placeholder="seu@email.com"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
@@ -113,11 +113,11 @@ const Login: React.FC<LoginProps> = ({ auth }) => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Senha pessoal</label>
+              <label className="text-[12px] font-black text-slate-700 uppercase tracking-widest ml-1">Senha pessoal</label>
               <input 
                 type="password" 
                 required 
-                className="w-full px-6 py-4 rounded-2xl bg-gray-50 border-transparent focus:bg-[#EBF2FF] focus:ring-2 focus:ring-[#6366F1] focus:border-transparent outline-none transition-all placeholder:text-gray-300 font-medium"
+                className="w-full px-6 py-4 rounded-2xl bg-white border-2 border-slate-200 focus:bg-white focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none transition-all placeholder:text-slate-400 font-semibold text-slate-800"
                 placeholder="••••••••"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
@@ -129,21 +129,21 @@ const Login: React.FC<LoginProps> = ({ auth }) => {
                 <input 
                   type="checkbox" 
                   id="remember" 
-                  className="w-4 h-4 rounded border-gray-300 text-[#6366F1] focus:ring-[#6366F1]"
+                  className="w-5 h-5 rounded border-slate-300 text-[#4F46E5] focus:ring-[#4F46E5]"
                   checked={rememberMe}
                   onChange={e => setRememberMe(e.target.checked)}
                 />
-                <label htmlFor="remember" className="text-[11px] font-bold text-gray-500 uppercase tracking-wider cursor-pointer">Lembrar meu acesso</label>
+                <label htmlFor="remember" className="text-[12px] font-bold text-slate-600 uppercase tracking-wider cursor-pointer">Lembrar meu acesso</label>
               </div>
             )}
 
             {mode === 'register' && (
               <div className="space-y-2 animate-in slide-in-from-top-4 duration-300">
-                <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Confirmar nova senha</label>
+                <label className="text-[12px] font-black text-slate-700 uppercase tracking-widest ml-1">Confirmar nova senha</label>
                 <input 
                   type="password" 
                   required 
-                  className="w-full px-6 py-4 rounded-2xl bg-gray-50 border-transparent focus:bg-[#EBF2FF] focus:ring-2 focus:ring-[#6366F1] focus:border-transparent outline-none transition-all placeholder:text-gray-300 font-medium"
+                  className="w-full px-6 py-4 rounded-2xl bg-white border-2 border-slate-200 focus:bg-white focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none transition-all placeholder:text-slate-400 font-semibold text-slate-800"
                   placeholder="••••••••"
                   value={confirmPassword}
                   onChange={e => setConfirmPassword(e.target.value)}
@@ -154,28 +154,28 @@ const Login: React.FC<LoginProps> = ({ auth }) => {
             <button 
               type="submit" 
               disabled={loading}
-              className="w-full py-5 rounded-2xl bg-gradient-to-br from-[#6366F1] to-[#9333EA] text-white font-black text-lg shadow-[0_10px_30px_rgba(99,102,241,0.3)] hover:shadow-[0_15px_40px_rgba(99,102,241,0.4)] hover:scale-[1.01] active:scale-[0.98] transition-all disabled:opacity-50 mt-4 uppercase tracking-widest"
+              className="w-full py-5 rounded-2xl bg-gradient-to-br from-[#4F46E5] to-[#7C3AED] text-white font-black text-lg shadow-[0_10px_30px_rgba(79,70,229,0.3)] hover:shadow-[0_15px_40px_rgba(79,70,229,0.4)] hover:scale-[1.01] active:scale-[0.98] transition-all disabled:opacity-50 mt-4 uppercase tracking-widest"
             >
               {loading ? 'Processando...' : mode === 'login' ? 'Entrar Agora' : 'Finalizar Cadastro'}
             </button>
           </form>
 
           <div className="mt-10 text-center space-y-4">
-            <p className="text-gray-400 font-bold text-sm">
+            <p className="text-slate-600 font-bold text-sm">
               {mode === 'login' ? 'Novo por aqui? ' : 'Já possui cadastro? '}
               <button 
                 onClick={() => {
                   setMode(mode === 'login' ? 'register' : 'login');
                   setError('');
                 }}
-                className="text-[#6366F1] font-black hover:underline"
+                className="text-[#4338CA] font-black hover:underline decoration-2"
               >
                 {mode === 'login' ? 'Criar minha conta' : 'Acessar minha conta'}
               </button>
             </p>
             
             {mode === 'login' && (
-              <button className="text-[#818CF8]/60 text-xs font-black uppercase tracking-widest hover:text-[#6366F1] transition-colors block w-full">
+              <button className="text-slate-500 text-xs font-black uppercase tracking-widest hover:text-[#4338CA] transition-colors block w-full">
                 Recuperar Acesso
               </button>
             )}
