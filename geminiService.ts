@@ -1,9 +1,21 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+let aiInstance: GoogleGenAI | null = null;
+
+function getAI() {
+  if (!aiInstance) {
+    const apiKey = process.env.GEMINI_API_KEY || "";
+    if (!apiKey) {
+      console.warn("Aviso: GEMINI_API_KEY não encontrada. As análises de imagem não funcionarão.");
+    }
+    aiInstance = new GoogleGenAI({ apiKey });
+  }
+  return aiInstance;
+}
 
 export async function analyzeCanImage(base64Image: string) {
+  const ai = getAI();
   const base64Data = base64Image.split(',')[1] || base64Image;
   try {
     const response = await ai.models.generateContent({
@@ -41,6 +53,7 @@ export async function analyzeCanImage(base64Image: string) {
 }
 
 export async function analyzeCreditCardImage(base64Image: string) {
+  const ai = getAI();
   const base64Data = base64Image.split(',')[1] || base64Image;
   try {
     const response = await ai.models.generateContent({
@@ -77,6 +90,7 @@ export async function analyzeCreditCardImage(base64Image: string) {
 }
 
 export async function analyzeCarMiniatureImage(base64Image: string) {
+  const ai = getAI();
   const base64Data = base64Image.split(',')[1] || base64Image;
   try {
     const response = await ai.models.generateContent({

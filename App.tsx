@@ -7,6 +7,7 @@ import CardDashboard from './components/CardDashboard';
 import CarDashboard from './components/CarDashboard';
 import CollectionMenu from './components/CollectionMenu';
 import AchievementsView from './components/AchievementsView';
+import BottomNav from './components/BottomNav';
 import { initializeApp } from 'firebase/app';
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 import { getFirestore, collection, onSnapshot, query } from 'firebase/firestore';
@@ -32,6 +33,7 @@ const App: React.FC = () => {
   const [carMiniatures, setCarMiniatures] = useState<CarMiniature[]>([]);
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'synced' | 'error'>('idle');
   const [view, setView] = useState<'menu' | 'cans' | 'achievements' | 'cards' | 'cars'>('menu');
+  const [triggerAdd, setTriggerAdd] = useState(0);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => {
@@ -117,6 +119,7 @@ const App: React.FC = () => {
           auth={auth} 
           syncStatus={syncStatus}
           onBack={() => setView('menu')}
+          externalAddTrigger={triggerAdd}
         />
       )}
       {view === 'cards' && (
@@ -127,6 +130,7 @@ const App: React.FC = () => {
           auth={auth} 
           syncStatus={syncStatus}
           onBack={() => setView('menu')}
+          externalAddTrigger={triggerAdd}
         />
       )}
       {view === 'cars' && (
@@ -137,8 +141,15 @@ const App: React.FC = () => {
           auth={auth} 
           syncStatus={syncStatus}
           onBack={() => setView('menu')}
+          externalAddTrigger={triggerAdd}
         />
       )}
+      
+      <BottomNav 
+        currentView={view} 
+        onNavigate={(v) => setView(v)} 
+        onAdd={() => setTriggerAdd(prev => prev + 1)} 
+      />
     </div>
   );
 };
