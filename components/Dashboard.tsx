@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { User } from 'firebase/auth';
 import { Firestore, collection, doc, deleteDoc, writeBatch, updateDoc, addDoc, serverTimestamp } from 'firebase/firestore';
 import { Can } from '../types';
@@ -8,10 +8,12 @@ import Toolbar from './Toolbar';
 import Filters from './Filters';
 import CanCard from './CanCard';
 import CanModal from './CanModal';
+import CanDetailModal from './CanDetailModal';
 import BulkUploadModal from './BulkUploadModal';
 import StatsCharts from './StatsCharts';
 import ImportModal from './ImportModal';
 import ExportModal from './ExportModal';
+import FullScreenViewer from './FullScreenViewer';
 
 interface DashboardProps {
   user: User;
@@ -35,20 +37,29 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [editingCan, setEditingCan] = useState<Can | null>(null);
+  const [detailCan, setDetailCan] = useState<Can | null>(null);
   
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isSelectionMode, setIsSelectionMode] = useState(false);
-  
   const [viewLayout, setViewLayout] = useState<ViewLayout>('grid');
   const [sortBy, setSortBy] = useState<SortOption>('name');
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
-  
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setSelectedImage(null);
+        setDetailCan(null);
         setIsStatsOpen(false);
         if (selectedIds.size === 0) setIsSelectionMode(false);
       }
@@ -106,33 +117,8 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
         next.delete(id);
         return next;
       });
+      setDetailCan(null);
     } catch (e) { alert("Erro ao excluir"); }
-  };
-
-  const handleBulkDelete = async () => {
-    if (selectedIds.size === 0) return;
-    if (!confirm(`Excluir permanentemente as ${selectedIds.size} latas selecionadas?`)) return;
-    try {
-      const batch = writeBatch(db);
-      selectedIds.forEach(id => { batch.delete(doc(db, 'users', user.uid, 'cans', id)); });
-      await batch.commit();
-      setSelectedIds(new Set());
-      setIsSelectionMode(false);
-      alert('Itens excluídos com sucesso!');
-    } catch (e) { alert("Erro na exclusão em massa"); }
-  };
-
-  const handleClearAll = async () => {
-    if (cans.length === 0) return;
-    const confirmText = prompt(`Para apagar todas as ${cans.length} latas, digite: DELETAR TUDO`);
-    if (confirmText === 'DELETAR TUDO') {
-      const batch = writeBatch(db);
-      cans.forEach(c => { batch.delete(doc(db, 'users', user.uid, 'cans', c.id)); });
-      await batch.commit();
-      setSelectedIds(new Set());
-      setIsSelectionMode(false);
-      alert('Coleção limpa!');
-    }
   };
 
   const handleSave = async (data: any) => {
@@ -145,42 +131,11 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
       }
       setIsModalOpen(false);
       setEditingCan(null);
+      setDetailCan(null);
     } catch (e) { alert("Erro ao salvar"); }
   };
 
-  const toggleSelect = (id: string) => {
-    setSelectedIds(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
-
-  const handleToggleSelectAll = () => {
-    const allCurrentlyVisibleIds = processedCans.map(c => c.id);
-    const areAllVisibleSelected = allCurrentlyVisibleIds.every(id => selectedIds.has(id));
-    if (areAllVisibleSelected) {
-      setSelectedIds(prev => {
-        const next = new Set(prev);
-        allCurrentlyVisibleIds.forEach(id => next.delete(id));
-        return next;
-      });
-    } else {
-      setSelectedIds(prev => {
-        const next = new Set(prev);
-        allCurrentlyVisibleIds.forEach(id => next.add(id));
-        return next;
-      });
-    }
-  };
-
-  const handleExitSelection = () => {
-    setSelectedIds(new Set());
-    setIsSelectionMode(false);
-  };
-
-  const sectionClass = "max-w-7xl mx-auto bg-white/10 backdrop-blur-2xl border border-white/20 rounded-[40px] shadow-2xl p-6 transition-all duration-300";
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   const gridClass = {
     grid: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8",
@@ -189,27 +144,19 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
     list: "flex flex-col gap-4"
   }[viewLayout];
 
-  const allVisibleSelected = processedCans.length > 0 && processedCans.every(c => selectedIds.has(c.id));
+  const sortLabels = {
+    name: 'ALFABÉTICA',
+    recent: 'RECENTES',
+    year: 'ANO'
+  };
 
   return (
     <div className="min-h-screen gradient-bg">
       <header className="text-white pt-8 pb-12 px-4 text-center">
         <div className="max-w-7xl mx-auto flex justify-between items-center mb-8 px-4">
-          <button 
-            onClick={onBack}
-            className="bg-white/20 hover:bg-white/30 text-[10px] font-black uppercase tracking-[2px] px-8 py-3 rounded-full transition-all border border-white/10"
-          >
-            ← Painel Principal
-          </button>
-          
-          <button 
-            onClick={() => setIsStatsOpen(true)}
-            className="bg-white text-indigo-600 hover:scale-105 active:scale-95 text-[10px] font-black uppercase tracking-[2px] px-8 py-3 rounded-full transition-all shadow-xl"
-          >
-            ⭐ Estatísticas Avançadas
-          </button>
+          <button onClick={onBack} className="bg-white/20 hover:bg-white/30 text-[10px] font-black uppercase tracking-[2px] px-8 py-3 rounded-full transition-all border border-white/10">← Painel Principal</button>
+          <button onClick={() => setIsStatsOpen(true)} className="bg-white text-indigo-600 hover:scale-105 active:scale-95 text-[10px] font-black uppercase tracking-[2px] px-8 py-3 rounded-full transition-all shadow-xl">⭐ Estatísticas Avançadas</button>
         </div>
-
         <div className="flex flex-col items-center gap-2 mb-2">
           <div className="flex items-center justify-center gap-4">
              <span className="text-5xl drop-shadow-lg">🥤</span>
@@ -217,175 +164,122 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
           </div>
           <p className="text-white/60 text-sm font-bold uppercase tracking-widest">{user.email}</p>
         </div>
-
         <StatsCards cans={cans} />
       </header>
 
       <main className="max-w-7xl mx-auto px-4 pb-40 space-y-6">
-        {/* 1. Toolbar Section */}
-        <div className={sectionClass}>
-           <Toolbar 
-            onOpenImport={() => setIsImportOpen(true)} 
-            onOpenExport={() => setIsExportOpen(true)} 
-            onClearAll={handleClearAll}
-          />
+        <div className="max-w-7xl mx-auto bg-white/10 backdrop-blur-2xl border border-white/20 rounded-[40px] shadow-2xl p-6 transition-all duration-300">
+           <Toolbar onOpenImport={() => setIsImportOpen(true)} onOpenExport={() => setIsExportOpen(true)} onClearAll={() => {}} />
         </div>
-
-        {/* 2. Filters Section */}
-        <div className={sectionClass}>
-          <Filters 
-            cans={cans} 
-            activeFilters={activeFilters} 
-            setActiveFilters={setActiveFilters} 
-          />
+        <div className="max-w-7xl mx-auto bg-white/10 backdrop-blur-2xl border border-white/20 rounded-[40px] shadow-2xl p-6 transition-all duration-300">
+          <Filters cans={cans} activeFilters={activeFilters} setActiveFilters={setActiveFilters} />
         </div>
-
-        {/* 3. Search Bar Section */}
-        <div className={sectionClass}>
+        <div className="max-w-7xl mx-auto bg-white/10 backdrop-blur-2xl border border-white/20 rounded-[40px] shadow-2xl p-6 transition-all duration-300">
           <div className="bg-white/95 rounded-[32px] p-2 flex items-center relative overflow-hidden shadow-sm border border-white">
             <span className="absolute left-6 text-2xl z-10">🔍</span>
-            <input 
-              type="text" 
-              placeholder="O que você está procurando? (Marca, Nome, Ano...)"
-              className="w-full pl-16 pr-6 py-4 rounded-[24px] bg-transparent outline-none text-xl font-bold text-gray-800 placeholder:text-gray-300 transition-all"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+            <input type="text" placeholder="Pesquisar..." className="w-full pl-16 pr-6 py-4 rounded-[24px] bg-transparent outline-none text-xl font-bold text-gray-800 transition-all" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
           </div>
         </div>
 
-        {/* 4. Minimal Controls Area - Aligned to the Right */}
-        <div className="max-w-7xl mx-auto">
-          {/* Progress Separator */}
-          <div className="flex items-center justify-center gap-6 w-full mb-4">
-             <div className="h-[1px] bg-white/20 flex-1 rounded-full"></div>
-             <p className="text-[12px] font-black text-white uppercase tracking-[5px] whitespace-nowrap">
-                {processedCans.length} Itens na Listagem
-             </p>
-             <div className="h-[1px] bg-white/20 flex-1 rounded-full"></div>
-          </div>
+        {/* Separador de Contagem */}
+        <div className="flex items-center gap-6 my-10 opacity-60">
+          <div className="h-[1px] flex-1 bg-white/20"></div>
+          <span className="text-white text-[10px] font-black uppercase tracking-[3px] whitespace-nowrap">
+            {processedCans.length} LATAS NA LISTAGEM
+          </span>
+          <div className="h-[1px] flex-1 bg-white/20"></div>
+        </div>
 
-          {/* New Subtle Controls Bar - Right Aligned */}
-          <div className="flex flex-wrap items-center justify-end gap-x-5 gap-y-2 text-white/50 px-4 mb-10 transition-all duration-300">
-            
-            {/* Visualização Ultra Sutil */}
-            <div className="flex items-center gap-2">
-              <span className="text-[9px] font-black uppercase tracking-[1.5px] opacity-60">Visualização</span>
-              <div className="flex items-center gap-0.5">
-                {(['grid', 'large', 'compact', 'list'] as ViewLayout[]).map(mode => (
-                  <button
-                    key={mode}
-                    onClick={() => setViewLayout(mode)}
-                    className={`w-7 h-7 flex items-center justify-center rounded-md transition-all ${viewLayout === mode ? 'text-white bg-white/10' : 'hover:text-white/80 hover:bg-white/5'}`}
-                  >
-                    {mode === 'grid' && <span className="text-xs">⠿</span>}
-                    {mode === 'large' && <span className="text-xs">▣</span>}
-                    {mode === 'compact' && <span className="text-xs">▦</span>}
-                    {mode === 'list' && <span className="text-xs">☰</span>}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="w-[1px] h-3 bg-white/10 hidden sm:block"></div>
-
-            {/* Ordenação Ultra Sutil */}
-            <div className="flex items-center gap-2">
-              <span className="text-[9px] font-black uppercase tracking-[1.5px] opacity-60">Ordenar:</span>
-              <div className="relative group">
-                <select 
-                  value={sortBy} 
-                  onChange={(e) => setSortBy(e.target.value as SortOption)}
-                  className="bg-transparent text-white font-bold text-[10px] uppercase tracking-wider outline-none cursor-pointer hover:text-white transition-colors appearance-none pr-3"
-                >
-                  <option value="name" className="text-gray-900 bg-white">Alfabética</option>
-                  <option value="recent" className="text-gray-900 bg-white">Recentes</option>
-                  <option value="year" className="text-gray-900 bg-white">Ano</option>
-                </select>
-                <span className="absolute right-0 top-1/2 -translate-y-1/2 text-[7px] pointer-events-none group-hover:text-white transition-colors">▾</span>
-              </div>
-            </div>
-
-            {/* Sort Order Button Ultra Sutil */}
-            <button 
-              onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-              className="text-white/60 hover:text-white transition-all font-black text-base p-1"
-              title={sortOrder === 'asc' ? 'Crescente' : 'Decrescente'}
-            >
-              {sortOrder === 'asc' ? '↑' : '↓'}
-            </button>
-
-            {/* Select All Sutil Link */}
-            {(isSelectionMode || selectedIds.size > 0) && processedCans.length > 0 && (
-              <>
-                <div className="w-[1px] h-3 bg-white/10 hidden sm:block"></div>
+        {/* Barra de Visualização e Ordenação */}
+        <div className="flex justify-end items-center gap-4 mb-8 px-4 opacity-50 transition-opacity hover:opacity-100">
+          <div className="flex items-center gap-2">
+            <span className="text-[8px] font-black uppercase tracking-[2px] text-white/50">VISUALIZAÇÃO</span>
+            <div className="flex gap-0.5 items-center">
+              {[
+                { id: 'grid', icon: '⠿' },
+                { id: 'large', icon: '▢' },
+                { id: 'compact', icon: '∷' },
+                { id: 'list', icon: '☰' }
+              ].map(v => (
                 <button 
-                  onClick={handleToggleSelectAll}
-                  className="text-[9px] font-black text-white/30 hover:text-white uppercase tracking-[1.5px] transition-all"
+                  key={v.id}
+                  onClick={() => setViewLayout(v.id as ViewLayout)}
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${viewLayout === v.id ? 'bg-white/10 text-white shadow-lg backdrop-blur-md' : 'text-white/30 hover:text-white/50'}`}
                 >
-                  {allVisibleSelected ? '[ Desmarcar ]' : '[ Selecionar ]'}
+                  <span className="text-lg">{v.icon}</span>
                 </button>
-              </>
-            )}
+              ))}
+            </div>
           </div>
+
+          <div className="w-[1px] h-3 bg-white/10 mx-1"></div>
+
+          <div className="flex items-center gap-2">
+             <span className="text-[8px] font-black uppercase tracking-[2px] text-white/50">ORDENAR:</span>
+             <div className="relative group">
+                <button className="text-[9px] font-black uppercase tracking-[1px] text-white flex items-center gap-1 hover:opacity-100 transition-all">
+                  {sortLabels[sortBy]} <span className="text-[6px] opacity-40">▼</span>
+                </button>
+                <div className="absolute top-full right-0 mt-2 bg-slate-900 border border-white/10 rounded-2xl shadow-2xl py-1.5 w-40 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                   {(['name', 'recent', 'year'] as SortOption[]).map(opt => (
+                     <button 
+                       key={opt}
+                       onClick={() => setSortBy(opt)}
+                       className={`w-full text-left px-5 py-2 text-[9px] font-black uppercase tracking-widest transition-all ${sortBy === opt ? 'text-indigo-400 bg-white/5' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
+                     >
+                       {sortLabels[opt]}
+                     </button>
+                   ))}
+                </div>
+             </div>
+          </div>
+
+          <button 
+            onClick={scrollToTop}
+            className="w-8 h-8 flex items-center justify-center text-white/20 hover:text-white transition-all ml-0.5"
+          >
+            <span className="text-lg font-thin">↑</span>
+          </button>
         </div>
 
-        <div className={gridClass}>
-          {processedCans.map(can => (
-            <CanCard 
-              key={can.id} 
-              can={can} 
-              variant={viewLayout}
-              onEdit={() => { setEditingCan(can); setIsModalOpen(true); }}
-              onDelete={() => handleDelete(can.id)}
-              onViewImage={(url) => setSelectedImage(url)}
-              isSelected={selectedIds.has(can.id)}
-              onToggleSelect={() => {
-                setIsSelectionMode(true);
-                toggleSelect(can.id);
-              }}
-              isSelectionMode={isSelectionMode}
-            />
-          ))}
-          {processedCans.length === 0 && (
-            <div className="col-span-full text-center py-40 bg-white/5 rounded-[64px] backdrop-blur-xl border-2 border-dashed border-white/10">
-              <div className="text-9xl mb-8 grayscale opacity-20">🕳️</div>
-              <h3 className="text-3xl font-black text-white/40 uppercase tracking-[8px]">Vazio</h3>
+        {processedCans.length === 0 ? (
+          <div className="w-full flex flex-col items-center justify-center py-20 px-10 border-2 border-dashed border-white/10 rounded-[64px] transition-all animate-in fade-in zoom-in duration-700">
+            <div className="w-28 h-14 bg-white/5 rounded-[100%] shadow-inner flex items-center justify-center border border-white/5 mb-8">
+               <div className="w-20 h-8 bg-indigo-500/20 rounded-[100%] blur-xl animate-pulse"></div>
             </div>
-          )}
-        </div>
+            <span className="text-white/30 text-3xl font-black uppercase tracking-[12px] ml-3">Vazio</span>
+          </div>
+        ) : (
+          <div className={gridClass}>
+            {processedCans.map(can => (
+              <CanCard 
+                key={can.id} 
+                can={can} 
+                variant={viewLayout}
+                onEdit={() => { setEditingCan(can); setIsModalOpen(true); }}
+                onDelete={() => handleDelete(can.id)}
+                onViewImage={(url) => setSelectedImage(url)}
+                onViewDetail={() => setDetailCan(can)}
+                isSelected={selectedIds.has(can.id)}
+                onToggleSelect={() => { setIsSelectionMode(true); toggleSelect(can.id); }}
+                isSelectionMode={isSelectionMode}
+              />
+            ))}
+          </div>
+        )}
       </main>
 
-      <button 
-        onClick={() => { setEditingCan(null); setIsModalOpen(true); }}
-        className="fixed bottom-12 right-12 w-24 h-24 rounded-[32px] bg-[#F43F5E] shadow-2xl text-white text-6xl font-light flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-[60] hover:rotate-90 duration-500 border-4 border-white/20"
-      >
-        +
-      </button>
-
-      {(isSelectionMode || selectedIds.size > 0) && (
-        <div className="fixed bottom-12 left-1/2 -translate-x-1/2 bg-slate-900/90 backdrop-blur-xl border border-white/10 px-10 py-5 rounded-[32px] shadow-2xl flex items-center gap-10 z-[100] animate-in slide-in-from-bottom-10 duration-500">
-           <div className="flex flex-col">
-              <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Selecionados</span>
-              <span className="text-xl font-black text-white">{selectedIds.size} Itens</span>
-           </div>
-           <div className="h-10 w-[1px] bg-white/10"></div>
-           <div className="flex gap-4">
-              <button onClick={() => setIsExportOpen(true)} className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all">Exportar Seleção</button>
-              <button onClick={handleBulkDelete} className="bg-red-600 hover:bg-red-500 text-white px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all">Excluir Seleção</button>
-              <button onClick={handleExitSelection} className="bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all">Sair da Seleção</button>
-           </div>
-        </div>
-      )}
-
+      <button onClick={() => { setEditingCan(null); setIsModalOpen(true); }} className="fixed bottom-12 right-12 w-24 h-24 rounded-[32px] bg-[#F43F5E] shadow-2xl text-white text-6xl font-light flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-[60] border-4 border-white/20">+</button>
+      
       {selectedImage && (
-        <div className="fixed inset-0 z-[200] bg-black/98 backdrop-blur-3xl flex items-center justify-center overflow-hidden" onClick={() => setSelectedImage(null)}>
-          <img src={selectedImage} className="max-w-[95vw] max-h-[95vh] object-contain drop-shadow-2xl rounded-2xl animate-in zoom-in duration-300" alt="Fullscreen" />
-          <button className="absolute top-10 right-10 text-white text-6xl font-thin hover:rotate-90 transition-transform">×</button>
-        </div>
+        <FullScreenViewer 
+          imageUrl={selectedImage} 
+          onClose={() => setSelectedImage(null)} 
+        />
       )}
 
       {isModalOpen && <CanModal can={editingCan} onClose={() => setIsModalOpen(false)} onSave={handleSave} />}
+      {detailCan && <CanDetailModal can={detailCan} onClose={() => setDetailCan(null)} onEdit={() => { setEditingCan(detailCan); setIsModalOpen(true); }} onDelete={() => handleDelete(detailCan.id)} onViewImage={(url) => setSelectedImage(url)} />}
       {isBulkOpen && <BulkUploadModal cans={cans} onClose={() => setIsBulkOpen(false)} db={db} user={user} />}
       {isStatsOpen && <StatsCharts cans={cans} onClose={() => setIsStatsOpen(false)} />}
       {isImportOpen && <ImportModal db={db} user={user} onClose={() => setIsImportOpen(false)} currentCount={cans.length} onOpenBulk={() => { setIsImportOpen(false); setIsBulkOpen(true); }} />}

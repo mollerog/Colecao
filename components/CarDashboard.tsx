@@ -2,22 +2,22 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { User } from 'firebase/auth';
 import { Firestore, collection, doc, deleteDoc, writeBatch, updateDoc, addDoc, serverTimestamp } from 'firebase/firestore';
-import { CreditCard } from '../types';
-import CardStatsCards from './CardStatsCards';
+import { CarMiniature } from '../types';
+import CarStatsCards from './CarStatsCards';
 import Toolbar from './Toolbar';
-import CardFilters from './CardFilters';
-import CardCard from './CardCard';
-import CardModal from './CardModal';
-import CardDetailModal from './CardDetailModal';
-import CardStatsCharts from './CardStatsCharts';
-import CardImportModal from './CardImportModal';
-import CardExportModal from './CardExportModal';
-import CardBulkUploadModal from './CardBulkUploadModal';
+import CarFilters from './CarFilters';
+import CarCard from './CarCard';
+import CarModal from './CarModal';
+import CarDetailModal from './CarDetailModal';
+import CarStatsCharts from './CarStatsCharts';
+import CarImportModal from './CarImportModal';
+import CarExportModal from './CarExportModal';
+import CarBulkUploadModal from './CarBulkUploadModal';
 import FullScreenViewer from './FullScreenViewer';
 
-interface CardDashboardProps {
+interface CarDashboardProps {
   user: User;
-  cards: CreditCard[];
+  cars: CarMiniature[];
   db: Firestore;
   auth: any;
   syncStatus: string;
@@ -25,10 +25,10 @@ interface CardDashboardProps {
 }
 
 export type ViewLayout = 'grid' | 'large' | 'list' | 'compact';
-export type SortOption = 'name' | 'recent' | 'year';
+export type SortOption = 'name' | 'recent' | 'year' | 'brand';
 export type SortOrder = 'asc' | 'desc';
 
-const CardDashboard: React.FC<CardDashboardProps> = ({ user, cards, db, auth, syncStatus, onBack }) => {
+const CarDashboard: React.FC<CarDashboardProps> = ({ user, cars, db, auth, syncStatus, onBack }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilters, setActiveFilters] = useState<any>({});
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -36,8 +36,8 @@ const CardDashboard: React.FC<CardDashboardProps> = ({ user, cards, db, auth, sy
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [isBulkOpen, setIsBulkOpen] = useState(false);
-  const [editingCard, setEditingCard] = useState<CreditCard | null>(null);
-  const [detailCard, setDetailCard] = useState<CreditCard | null>(null);
+  const [editingCar, setEditingCar] = useState<CarMiniature | null>(null);
+  const [detailCar, setDetailCar] = useState<CarMiniature | null>(null);
   
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isSelectionMode, setIsSelectionMode] = useState(false);
@@ -59,7 +59,7 @@ const CardDashboard: React.FC<CardDashboardProps> = ({ user, cards, db, auth, sy
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setSelectedImage(null);
-        setDetailCard(null);
+        setDetailCar(null);
         setIsStatsOpen(false);
         if (selectedIds.size === 0) setIsSelectionMode(false);
       }
@@ -68,15 +68,16 @@ const CardDashboard: React.FC<CardDashboardProps> = ({ user, cards, db, auth, sy
     return () => window.removeEventListener('keydown', handleEsc);
   }, [selectedIds.size]);
 
-  const processedCards = useMemo(() => {
-    let result = [...cards];
+  const processedCars = useMemo(() => {
+    let result = [...cars];
     if (searchTerm) {
       const lower = searchTerm.toLowerCase();
       result = result.filter(c => 
-        c.cardName.toLowerCase().includes(lower) ||
-        c.issuer.toLowerCase().includes(lower) ||
-        c.network.toLowerCase().includes(lower) ||
-        c.category.toLowerCase().includes(lower) ||
+        c.minatureName.toLowerCase().includes(lower) ||
+        c.miniatureBrand.toLowerCase().includes(lower) ||
+        c.realCarBrand.toLowerCase().includes(lower) ||
+        c.realCarModel.toLowerCase().includes(lower) ||
+        c.line.toLowerCase().includes(lower) ||
         (c.year && c.year.toLowerCase().includes(lower))
       );
     }
@@ -87,38 +88,39 @@ const CardDashboard: React.FC<CardDashboardProps> = ({ user, cards, db, auth, sy
     });
     result.sort((a, b) => {
       let comp = 0;
-      if (sortBy === 'name') comp = a.cardName.localeCompare(b.cardName);
+      if (sortBy === 'name') comp = a.minatureName.localeCompare(b.minatureName);
+      else if (sortBy === 'brand') comp = a.miniatureBrand.localeCompare(b.miniatureBrand);
       else if (sortBy === 'year') comp = (parseInt(a.year || '0') || 0) - (parseInt(b.year || '0') || 0);
       else comp = (a.updatedAt?.seconds || 0) - (b.updatedAt?.seconds || 0);
       return sortOrder === 'asc' ? comp : comp * -1;
     });
     return result;
-  }, [cards, searchTerm, activeFilters, sortBy, sortOrder]);
+  }, [cars, searchTerm, activeFilters, sortBy, sortOrder]);
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Excluir este cartão permanentemente?')) return;
+    if (!confirm('Excluir esta miniatura permanentemente?')) return;
     try {
-      await deleteDoc(doc(db, 'users', user.uid, 'cards', id));
+      await deleteDoc(doc(db, 'users', user.uid, 'cars', id));
       setSelectedIds(prev => {
         const next = new Set(prev);
         next.delete(id);
         return next;
       });
-      setDetailCard(null);
+      setDetailCar(null);
     } catch (e) { alert("Erro ao excluir"); }
   };
 
   const handleSave = async (data: any) => {
     try {
-      const cardsRef = collection(db, 'users', user.uid, 'cards');
-      if (editingCard) {
-        await updateDoc(doc(db, 'users', user.uid, 'cards', editingCard.id), { ...data, updatedAt: serverTimestamp() });
+      const carsRef = collection(db, 'users', user.uid, 'cars');
+      if (editingCar) {
+        await updateDoc(doc(db, 'users', user.uid, 'cars', editingCar.id), { ...data, updatedAt: serverTimestamp() });
       } else {
-        await addDoc(cardsRef, { ...data, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+        await addDoc(carsRef, { ...data, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
       }
       setIsModalOpen(false);
-      setEditingCard(null);
-      setDetailCard(null);
+      setEditingCar(null);
+      setDetailCar(null);
     } catch (e) { alert("Erro ao salvar"); }
   };
 
@@ -133,6 +135,7 @@ const CardDashboard: React.FC<CardDashboardProps> = ({ user, cards, db, auth, sy
 
   const sortLabels = {
     name: 'ALFABÉTICA',
+    brand: 'FABRICANTE',
     recent: 'RECENTES',
     year: 'ANO'
   };
@@ -146,12 +149,12 @@ const CardDashboard: React.FC<CardDashboardProps> = ({ user, cards, db, auth, sy
         </div>
         <div className="flex flex-col items-center gap-2 mb-2">
           <div className="flex items-center justify-center gap-4">
-             <span className="text-5xl drop-shadow-lg">💳</span>
-             <h1 className="text-6xl font-black tracking-tighter text-white">Meus Cartões</h1>
+             <span className="text-5xl drop-shadow-lg">🚗</span>
+             <h1 className="text-6xl font-black tracking-tighter text-white">Minhas Miniaturas</h1>
           </div>
           <p className="text-white/60 text-sm font-bold uppercase tracking-widest">{user.email}</p>
         </div>
-        <CardStatsCards cards={cards} />
+        <CarStatsCards cars={cars} />
       </header>
 
       <main className="max-w-7xl mx-auto px-4 pb-40 space-y-6">
@@ -159,12 +162,12 @@ const CardDashboard: React.FC<CardDashboardProps> = ({ user, cards, db, auth, sy
            <Toolbar onOpenImport={() => setIsImportOpen(true)} onOpenExport={() => setIsExportOpen(true)} onClearAll={() => {}} />
         </div>
         <div className="max-w-7xl mx-auto bg-white/10 backdrop-blur-2xl border border-white/20 rounded-[40px] shadow-2xl p-6 transition-all duration-300">
-          <CardFilters cards={cards} activeFilters={activeFilters} setActiveFilters={setActiveFilters} />
+          <CarFilters cars={cars} activeFilters={activeFilters} setActiveFilters={setActiveFilters} />
         </div>
         <div className="max-w-7xl mx-auto bg-white/10 backdrop-blur-2xl border border-white/20 rounded-[40px] shadow-2xl p-6 transition-all duration-300">
           <div className="bg-white/95 rounded-[32px] p-2 flex items-center relative overflow-hidden shadow-sm border border-white">
             <span className="absolute left-6 text-2xl z-10">🔍</span>
-            <input type="text" placeholder="Pesquisar cartões..." className="w-full pl-16 pr-6 py-4 rounded-[24px] bg-transparent outline-none text-xl font-bold text-gray-800 transition-all" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+            <input type="text" placeholder="Pesquisar..." className="w-full pl-16 pr-6 py-4 rounded-[24px] bg-transparent outline-none text-xl font-bold text-gray-800 transition-all" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
           </div>
         </div>
 
@@ -172,7 +175,7 @@ const CardDashboard: React.FC<CardDashboardProps> = ({ user, cards, db, auth, sy
         <div className="flex items-center gap-6 my-10 opacity-60">
           <div className="h-[1px] flex-1 bg-white/20"></div>
           <span className="text-white text-[10px] font-black uppercase tracking-[3px] whitespace-nowrap">
-            {processedCards.length} CARTÕES NA LISTAGEM
+            {processedCars.length} MINIATURAS NA LISTAGEM
           </span>
           <div className="h-[1px] flex-1 bg-white/20"></div>
         </div>
@@ -208,7 +211,7 @@ const CardDashboard: React.FC<CardDashboardProps> = ({ user, cards, db, auth, sy
                   {sortLabels[sortBy]} <span className="text-[6px] opacity-40">▼</span>
                 </button>
                 <div className="absolute top-full right-0 mt-2 bg-slate-900 border border-white/10 rounded-2xl shadow-2xl py-1.5 w-40 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
-                   {(['name', 'recent', 'year'] as SortOption[]).map(opt => (
+                   {(['name', 'brand', 'recent', 'year'] as SortOption[]).map(opt => (
                      <button 
                        key={opt}
                        onClick={() => setSortBy(opt)}
@@ -229,7 +232,7 @@ const CardDashboard: React.FC<CardDashboardProps> = ({ user, cards, db, auth, sy
           </button>
         </div>
 
-        {processedCards.length === 0 ? (
+        {processedCars.length === 0 ? (
           <div className="w-full flex flex-col items-center justify-center py-20 px-10 border-2 border-dashed border-white/10 rounded-[64px] transition-all animate-in fade-in zoom-in duration-700">
             <div className="w-28 h-14 bg-white/5 rounded-[100%] shadow-inner flex items-center justify-center border border-white/5 mb-8">
                <div className="w-20 h-8 bg-indigo-500/20 rounded-[100%] blur-xl animate-pulse"></div>
@@ -238,17 +241,17 @@ const CardDashboard: React.FC<CardDashboardProps> = ({ user, cards, db, auth, sy
           </div>
         ) : (
           <div className={gridClass}>
-            {processedCards.map(card => (
-              <CardCard 
-                key={card.id} 
-                card={card} 
+            {processedCars.map(car => (
+              <CarCard 
+                key={car.id} 
+                car={car} 
                 variant={viewLayout}
-                onEdit={() => { setEditingCard(card); setIsModalOpen(true); }}
-                onDelete={() => handleDelete(card.id)}
+                onEdit={() => { setEditingCar(car); setIsModalOpen(true); }}
+                onDelete={() => handleDelete(car.id)}
                 onViewImage={(url) => setSelectedImage(url)}
-                onViewDetail={() => setDetailCard(card)}
-                isSelected={selectedIds.has(card.id)}
-                onToggleSelect={() => { setIsSelectionMode(true); toggleSelect(card.id); }}
+                onViewDetail={() => setDetailCar(car)}
+                isSelected={selectedIds.has(car.id)}
+                onToggleSelect={() => { setIsSelectionMode(true); toggleSelect(car.id); }}
                 isSelectionMode={isSelectionMode}
               />
             ))}
@@ -256,7 +259,7 @@ const CardDashboard: React.FC<CardDashboardProps> = ({ user, cards, db, auth, sy
         )}
       </main>
 
-      <button onClick={() => { setEditingCard(null); setIsModalOpen(true); }} className="fixed bottom-12 right-12 w-24 h-24 rounded-[32px] bg-[#F43F5E] shadow-2xl text-white text-6xl font-light flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-[60] border-4 border-white/20">+</button>
+      <button onClick={() => { setEditingCar(null); setIsModalOpen(true); }} className="fixed bottom-12 right-12 w-24 h-24 rounded-[32px] bg-[#F43F5E] shadow-2xl text-white text-6xl font-light flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-[60] border-4 border-white/20">+</button>
       
       {selectedImage && (
         <FullScreenViewer 
@@ -265,14 +268,14 @@ const CardDashboard: React.FC<CardDashboardProps> = ({ user, cards, db, auth, sy
         />
       )}
 
-      {isModalOpen && <CardModal card={editingCard} onClose={() => setIsModalOpen(false)} onSave={handleSave} />}
-      {detailCard && <CardDetailModal card={detailCard} onClose={() => setDetailCard(null)} onEdit={() => { setEditingCard(detailCard); setIsModalOpen(true); }} onDelete={() => handleDelete(detailCard.id)} onViewImage={(url) => setSelectedImage(url)} />}
-      {isStatsOpen && <CardStatsCharts cards={cards} onClose={() => setIsStatsOpen(false)} />}
-      {isImportOpen && <CardImportModal db={db} user={user} onClose={() => setIsImportOpen(false)} currentCount={cards.length} onOpenBulk={() => { setIsImportOpen(false); setIsBulkOpen(true); }} />}
-      {isExportOpen && <CardExportModal allCards={cards} selectedCards={cards.filter(c => selectedIds.has(c.id))} onClose={() => setIsExportOpen(false)} onEnterSelectionMode={() => { setIsExportOpen(false); setIsSelectionMode(true); }} />}
-      {isBulkOpen && <CardBulkUploadModal cards={cards} onClose={() => setIsBulkOpen(false)} db={db} user={user} />}
+      {isModalOpen && <CarModal car={editingCar} onClose={() => setIsModalOpen(false)} onSave={handleSave} />}
+      {detailCar && <CarDetailModal car={detailCar} onClose={() => setDetailCar(null)} onEdit={() => { setEditingCar(detailCar); setIsModalOpen(true); }} onDelete={() => handleDelete(detailCar.id)} onViewImage={(url) => setSelectedImage(url)} />}
+      {isStatsOpen && <CarStatsCharts cars={cars} onClose={() => setIsStatsOpen(false)} />}
+      {isImportOpen && <CarImportModal db={db} user={user} onClose={() => setIsImportOpen(false)} currentCount={cars.length} onOpenBulk={() => { setIsImportOpen(false); setIsBulkOpen(true); }} />}
+      {isExportOpen && <CarExportModal allCars={cars} selectedCars={cars.filter(c => selectedIds.has(c.id))} onClose={() => setIsExportOpen(false)} onEnterSelectionMode={() => { setIsExportOpen(false); setIsSelectionMode(true); }} />}
+      {isBulkOpen && <CarBulkUploadModal cars={cars} onClose={() => setIsBulkOpen(false)} db={db} user={user} />}
     </div>
   );
 };
 
-export default CardDashboard;
+export default CarDashboard;

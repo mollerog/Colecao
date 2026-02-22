@@ -1,9 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
-import { AuthMode, Can, CreditCard } from './types';
+import { AuthMode, Can, CreditCard, CarMiniature } from './types';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import CardDashboard from './components/CardDashboard';
+import CarDashboard from './components/CarDashboard';
 import CollectionMenu from './components/CollectionMenu';
 import AchievementsView from './components/AchievementsView';
 import { initializeApp } from 'firebase/app';
@@ -28,8 +29,9 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [cans, setCans] = useState<Can[]>([]);
   const [cards, setCards] = useState<CreditCard[]>([]);
+  const [carMiniatures, setCarMiniatures] = useState<CarMiniature[]>([]);
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'synced' | 'error'>('idle');
-  const [view, setView] = useState<'menu' | 'cans' | 'achievements' | 'cards'>('menu');
+  const [view, setView] = useState<'menu' | 'cans' | 'achievements' | 'cards' | 'cars'>('menu');
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => {
@@ -44,6 +46,7 @@ const App: React.FC = () => {
     if (!user) {
       setCans([]);
       setCards([]);
+      setCarMiniatures([]);
       return;
     }
 
@@ -59,11 +62,17 @@ const App: React.FC = () => {
     const cardsRef = collection(db, 'users', user.uid, 'cards');
     const unsubCards = onSnapshot(query(cardsRef), (snapshot) => {
       setCards(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CreditCard)));
+    });
+
+    // Listen for Cars
+    const carsRef = collection(db, 'users', user.uid, 'cars');
+    const unsubCars = onSnapshot(query(carsRef), (snapshot) => {
+      setCarMiniatures(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CarMiniature)));
       setSyncStatus('synced');
       setTimeout(() => setSyncStatus('idle'), 2000);
     });
 
-    return () => { unsubCans(); unsubCards(); };
+    return () => { unsubCans(); unsubCards(); unsubCars(); };
   }, [user]);
 
   if (loading) {
@@ -86,8 +95,10 @@ const App: React.FC = () => {
           user={user} 
           cans={cans} 
           cards={cards}
+          cars={carMiniatures}
           onSelectCans={() => setView('cans')} 
           onSelectCards={() => setView('cards')}
+          onSelectCars={() => setView('cars')}
           onViewAchievements={() => setView('achievements')}
           auth={auth}
         />
@@ -112,6 +123,16 @@ const App: React.FC = () => {
         <CardDashboard 
           user={user} 
           cards={cards} 
+          db={db} 
+          auth={auth} 
+          syncStatus={syncStatus}
+          onBack={() => setView('menu')}
+        />
+      )}
+      {view === 'cars' && (
+        <CarDashboard 
+          user={user} 
+          cars={carMiniatures} 
           db={db} 
           auth={auth} 
           syncStatus={syncStatus}

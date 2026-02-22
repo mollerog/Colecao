@@ -1,21 +1,24 @@
 
 import React from 'react';
 import { User, signOut } from 'firebase/auth';
-import { Can, CreditCard } from '../types';
+import { Can, CreditCard, CarMiniature } from '../types';
 
 interface CollectionMenuProps {
   user: User;
   cans: Can[];
   cards: CreditCard[];
+  cars: CarMiniature[];
   onSelectCans: () => void;
   onSelectCards: () => void;
+  onSelectCars: () => void;
   onViewAchievements: () => void;
   auth: any;
 }
 
-const CollectionMenu: React.FC<CollectionMenuProps> = ({ user, cans, cards, onSelectCans, onSelectCards, onViewAchievements, auth }) => {
+const CollectionMenu: React.FC<CollectionMenuProps> = ({ user, cans, cards, cars, onSelectCans, onSelectCards, onSelectCars, onViewAchievements, auth }) => {
   const cansCount = cans.length;
   const cardsCount = cards.length;
+  const carsCount = cars.length;
 
   const handleLogout = () => {
     if (confirm('Deseja sair?')) signOut(auth);
@@ -41,6 +44,15 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({ user, cans, cards, onSe
       action: onSelectCards
     },
     { 
+      id: 'cars', 
+      title: 'Miniaturas Autos', 
+      desc: 'Sua garagem Hot Wheels, Matchbox e outras marcas em escala.', 
+      icon: '🚗', 
+      active: true,
+      count: `${carsCount} ITENS`,
+      action: onSelectCars
+    },
+    { 
       id: 'phone', 
       title: 'Cartão Telefônico', 
       desc: 'Novas categorias de colecionáveis serão adicionadas futuramente.', 
@@ -61,14 +73,6 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({ user, cans, cards, onSe
       title: 'Embalagens', 
       desc: 'Novas categorias de colecionáveis serão adicionadas futuramente.', 
       icon: '📦', 
-      active: false,
-      badge: 'EM BREVE'
-    },
-    { 
-      id: 'cars', 
-      title: 'Miniaturas Autos', 
-      desc: 'Novas categorias de colecionáveis serão adicionadas futuramente.', 
-      icon: '🚗', 
       active: false,
       badge: 'EM BREVE'
     },
