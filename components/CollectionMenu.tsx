@@ -129,13 +129,13 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({ user, cans, cards, cars
         </p>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 sm:px-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
         {categories.map((cat) => (
           <div 
             key={cat.id}
             onClick={cat.action}
             className={`
-              relative flex flex-col p-10 rounded-[48px] border transition-all duration-500
+              relative flex flex-col p-8 rounded-[32px] border transition-all duration-500
               ${cat.active 
                 ? 'bg-white/15 border-white/20 cursor-pointer hover:bg-white/20 hover:scale-[1.02] shadow-2xl group' 
                 : 'bg-white/5 border-white/10 opacity-60 grayscale-[0.5]'}
@@ -152,12 +152,12 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({ user, cans, cards, cars
               </div>
             )}
 
-            <div className={`text-7xl mb-10 ${cat.active ? 'group-hover:rotate-12 transition-transform duration-500' : ''}`}>
+            <div className={`text-6xl mb-6 ${cat.active ? 'group-hover:rotate-12 transition-transform duration-500' : ''}`}>
               {cat.icon}
             </div>
 
-            <h2 className="text-3xl font-black mb-4 tracking-tight">{cat.title}</h2>
-            <p className="text-white/50 font-medium leading-relaxed mb-12">
+            <h2 className="text-2xl font-black mb-3 tracking-tight">{cat.title}</h2>
+            <p className="text-white/50 text-sm font-medium leading-relaxed mb-8">
               {cat.desc}
             </p>
 
@@ -169,7 +169,7 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({ user, cans, cards, cars
           </div>
         ))}
         
-        <div className="bg-white/5 border border-white/10 border-dashed rounded-[48px] p-10 flex flex-col items-center justify-center text-center opacity-40">
+        <div className="bg-white/5 border border-white/10 border-dashed rounded-[32px] p-8 flex flex-col items-center justify-center text-center opacity-40">
            <div className="text-5xl mb-4">✨</div>
            <p className="text-2xl font-black italic tracking-tighter">Em breve mais novidades...</p>
         </div>
