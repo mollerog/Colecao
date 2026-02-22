@@ -1,0 +1,17 @@
+{
+  "name": "Controle de Coleções",
+  "short_name": "Minha Coleção",
+  "description": "Gerencie suas coleções de latas, cartões e miniaturas.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#764ba2",
+  "theme_color": "#667eea",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3081/3081840.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
