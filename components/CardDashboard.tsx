@@ -140,16 +140,16 @@ const CardDashboard: React.FC<CardDashboardProps> = ({ user, cards, db, auth, sy
   return (
     <div className="min-h-screen gradient-bg">
       <header className="text-white pt-8 pb-12 px-4 text-center">
-        <div className="max-w-7xl mx-auto flex justify-between items-center mb-8 px-4">
-          <button onClick={onBack} className="bg-white/20 hover:bg-white/30 text-[10px] font-black uppercase tracking-[2px] px-8 py-3 rounded-full transition-all border border-white/10">← Painel Principal</button>
-          <button onClick={() => setIsStatsOpen(true)} className="bg-white text-indigo-600 hover:scale-105 active:scale-95 text-[10px] font-black uppercase tracking-[2px] px-8 py-3 rounded-full transition-all shadow-xl">⭐ Estatísticas Avançadas</button>
+        <div className="max-w-7xl mx-auto flex flex-row justify-between items-center mb-8 px-4 gap-2">
+          <button onClick={onBack} className="bg-white/20 hover:bg-white/30 text-[8px] sm:text-[10px] font-black uppercase tracking-[1px] sm:tracking-[2px] px-4 sm:px-8 py-3 rounded-full transition-all border border-white/10 whitespace-nowrap">← Painel Principal</button>
+          <button onClick={() => setIsStatsOpen(true)} className="bg-white text-indigo-600 hover:scale-105 active:scale-95 text-[8px] sm:text-[10px] font-black uppercase tracking-[1px] sm:tracking-[2px] px-4 sm:px-8 py-3 rounded-full transition-all shadow-xl whitespace-nowrap">⭐ Estatísticas</button>
         </div>
         <div className="flex flex-col items-center gap-2 mb-2">
           <div className="flex items-center justify-center gap-4">
-             <span className="text-5xl drop-shadow-lg">💳</span>
-             <h1 className="text-6xl font-black tracking-tighter text-white">Meus Cartões</h1>
+             <span className="text-3xl sm:text-5xl drop-shadow-lg">💳</span>
+             <h1 className="text-4xl sm:text-6xl font-black tracking-tighter text-white">Meus Cartões</h1>
           </div>
-          <p className="text-white/60 text-sm font-bold uppercase tracking-widest">{user.email}</p>
+          <p className="text-white/60 text-xs sm:text-sm font-bold uppercase tracking-widest">{user.email}</p>
         </div>
         <CardStatsCards cards={cards} />
       </header>

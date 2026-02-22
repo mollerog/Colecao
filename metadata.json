@@ -1,5 +1,5 @@
 {
-  "name": "Remix: Controle de colecões",
+  "name": "Controle de colecoes",
   "description": "A sophisticated beverage can collection manager featuring AI-powered metadata extraction, bulk photo uploading, and advanced filtering.",
   "requestFramePermissions": [
     "camera"
