@@ -69,24 +69,21 @@ const Filters: React.FC<FiltersProps> = ({ cans, activeFilters, setActiveFilters
 
   return (
     <div className="w-full">
-      <div className="bg-white/95 rounded-[32px] p-6 shadow-sm border border-white">
-        <div className="flex justify-between items-center">
-          <button 
-            className="flex items-center gap-3 text-slate-800 font-black text-lg uppercase tracking-widest"
-            onClick={() => setIsOpen(!isOpen)}
-          >
-            <span className="text-2xl">🔍</span> Filtros Avançados
-          </button>
-          <button 
-            onClick={() => setIsOpen(!isOpen)}
-            className="text-slate-400 hover:text-indigo-600 transition-all duration-500"
-            style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
-          >
-            <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+      <div className="bg-white/95 rounded-2xl sm:rounded-[40px] p-1.5 sm:p-2 shadow-sm border border-white">
+        <button 
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-full flex justify-between items-center px-4 py-3 sm:px-6 sm:py-4 hover:bg-gray-50/50 rounded-xl sm:rounded-[38px] transition-colors group"
+        >
+          <div className="flex items-center gap-3 sm:gap-4">
+            <span className="text-xl sm:text-2xl group-hover:scale-110 transition-transform">🔍</span>
+            <span className="text-sm sm:text-lg font-black text-slate-800 uppercase tracking-[2px] sm:tracking-[4px]">Filtros Avançados</span>
+          </div>
+          <div className={`text-slate-400 transition-all duration-500 ${isOpen ? 'rotate-180 text-indigo-600' : ''}`}>
+            <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
             </svg>
-          </button>
-        </div>
+          </div>
+        </button>
 
         {isOpen && (
           <div className="animate-in fade-in slide-in-from-top-4 duration-500 mt-6 pt-6 border-t border-gray-50">

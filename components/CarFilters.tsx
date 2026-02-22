@@ -34,11 +34,17 @@ const CarFilters: React.FC<CarFiltersProps> = ({ cars, activeFilters, setActiveF
 
   return (
     <div className="w-full">
-      <div className="bg-white/95 rounded-[32px] p-6 shadow-sm border border-white">
-        <div className="flex justify-between items-center" onClick={() => setIsOpen(!isOpen)}>
-          <button className="flex items-center gap-3 text-slate-800 font-black text-lg uppercase tracking-widest">🔍 Filtros de Garagem</button>
-          <button className={`text-slate-400 transition-all ${isOpen ? 'rotate-180' : ''}`}>▼</button>
-        </div>
+      <div className="bg-white/95 rounded-2xl sm:rounded-[40px] p-1.5 sm:p-2 shadow-sm border border-white">
+        <button 
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-full flex justify-between items-center px-4 py-3 sm:px-6 sm:py-4 hover:bg-gray-50/50 rounded-xl sm:rounded-[38px] transition-colors group"
+        >
+          <div className="flex items-center gap-3 sm:gap-4">
+            <span className="text-xl sm:text-2xl group-hover:scale-110 transition-transform">🔍</span>
+            <span className="text-sm sm:text-lg font-black text-slate-800 uppercase tracking-[2px] sm:tracking-[4px]">Filtros de Garagem</span>
+          </div>
+          <div className={`text-slate-400 transition-all ${isOpen ? 'rotate-180 text-indigo-600' : ''}`}>▼</div>
+        </button>
         {isOpen && (
           <div className="mt-6 pt-6 border-t flex flex-wrap gap-4 animate-in fade-in slide-in-from-top-2">
             <FilterSelect label="Fabricante (Min)" field="miniatureBrand" options={getOptions('miniatureBrand')} />

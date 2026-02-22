@@ -119,59 +119,59 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({ user, cans, cards, cars
         </div>
       </header>
 
-      <div className="flex flex-col items-center text-center mt-6 mb-16 px-4 animate-in slide-in-from-top-4 duration-1000">
-        <div className="text-8xl sm:text-9xl mb-4 drop-shadow-2xl">🏠</div>
-        <h1 className="text-6xl sm:text-8xl font-black tracking-tighter mb-4 text-white">
-          Minhas Coleção
+      <div className="flex flex-col items-center text-center mt-6 mb-12 sm:mb-16 px-4 animate-in slide-in-from-top-4 duration-1000">
+        <div className="text-7xl sm:text-9xl mb-4 drop-shadow-2xl">🏠</div>
+        <h1 className="text-4xl sm:text-8xl font-black tracking-tighter mb-3 sm:mb-4 text-white">
+          Minha Coleção
         </h1>
-        <p className="text-white/70 text-base sm:text-xl font-medium tracking-tight">
+        <p className="text-white/70 text-sm sm:text-xl font-medium tracking-tight max-w-xs sm:max-w-none">
           Escolha qual coleção deseja gerenciar hoje.
         </p>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 sm:px-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 pb-20">
         {categories.map((cat) => (
           <div 
             key={cat.id}
             onClick={cat.action}
             className={`
-              relative flex flex-col p-8 rounded-[32px] border transition-all duration-500
+              relative flex flex-col p-6 sm:p-8 rounded-[24px] sm:rounded-[32px] border transition-all duration-500
               ${cat.active 
                 ? 'bg-white/15 border-white/20 cursor-pointer hover:bg-white/20 hover:scale-[1.02] shadow-2xl group' 
                 : 'bg-white/5 border-white/10 opacity-60 grayscale-[0.5]'}
             `}
           >
             {cat.count && (
-              <div className="absolute top-8 right-8 bg-indigo-600 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">
+              <div className="absolute top-6 right-6 sm:top-8 sm:right-8 bg-indigo-600 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-[8px] sm:text-[10px] font-black uppercase tracking-widest shadow-lg">
                 {cat.count}
               </div>
             )}
             {cat.badge && (
-              <div className="absolute top-8 right-8 bg-white/10 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest text-white/40">
+              <div className="absolute top-6 right-6 sm:top-8 sm:right-8 bg-white/10 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-white/40">
                 {cat.badge}
               </div>
             )}
 
-            <div className={`text-6xl mb-6 ${cat.active ? 'group-hover:rotate-12 transition-transform duration-500' : ''}`}>
+            <div className={`text-5xl sm:text-6xl mb-4 sm:mb-6 ${cat.active ? 'group-hover:rotate-12 transition-transform duration-500' : ''}`}>
               {cat.icon}
             </div>
 
-            <h2 className="text-2xl font-black mb-3 tracking-tight">{cat.title}</h2>
-            <p className="text-white/50 text-sm font-medium leading-relaxed mb-8">
+            <h2 className="text-xl sm:text-2xl font-black mb-2 sm:mb-3 tracking-tight">{cat.title}</h2>
+            <p className="text-white/50 text-xs sm:text-sm font-medium leading-relaxed mb-6 sm:mb-8">
               {cat.desc}
             </p>
 
             {cat.active && (
-              <div className="mt-auto flex items-center gap-2 text-[10px] font-black uppercase tracking-[3px] text-white/40 group-hover:text-white transition-colors">
-                ACESSAR COLEÇÃO <span className="text-xl">→</span>
+              <div className="mt-auto flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[2px] sm:tracking-[3px] text-white/40 group-hover:text-white transition-colors">
+                ACESSAR COLEÇÃO <span className="text-lg sm:text-xl">→</span>
               </div>
             )}
           </div>
         ))}
         
-        <div className="bg-white/5 border border-white/10 border-dashed rounded-[32px] p-8 flex flex-col items-center justify-center text-center opacity-40">
-           <div className="text-5xl mb-4">✨</div>
-           <p className="text-2xl font-black italic tracking-tighter">Em breve mais novidades...</p>
+        <div className="bg-white/5 border border-white/10 border-dashed rounded-[24px] sm:rounded-[32px] p-6 sm:p-8 flex flex-col items-center justify-center text-center opacity-40">
+           <div className="text-4xl sm:text-5xl mb-3 sm:mb-4">✨</div>
+           <p className="text-xl sm:text-2xl font-black italic tracking-tighter">Em breve mais novidades...</p>
         </div>
       </div>
     </div>

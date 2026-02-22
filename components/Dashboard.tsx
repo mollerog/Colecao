@@ -158,26 +158,26 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
           <button onClick={() => setIsStatsOpen(true)} className="bg-white text-indigo-600 hover:scale-105 active:scale-95 text-[8px] sm:text-[10px] font-black uppercase tracking-[1px] sm:tracking-[2px] px-4 sm:px-8 py-3 rounded-full transition-all shadow-xl whitespace-nowrap">⭐ Estatísticas</button>
         </div>
         <div className="flex flex-col items-center gap-2 mb-2">
-          <div className="flex items-center justify-center gap-4">
+          <div className="flex flex-col items-center justify-center gap-2">
              <span className="text-3xl sm:text-5xl drop-shadow-lg">🥤</span>
-             <h1 className="text-4xl sm:text-6xl font-black tracking-tighter text-white">Minha coleção de latas</h1>
+             <h1 className="text-4xl sm:text-6xl font-black tracking-tighter text-white text-center">Minha coleção de latas</h1>
           </div>
-          <p className="text-white/60 text-xs sm:text-sm font-bold uppercase tracking-widest">{user.email}</p>
+          <p className="text-white/60 text-xs sm:text-sm font-bold uppercase tracking-widest text-center">{user.email}</p>
         </div>
         <StatsCards cans={cans} />
       </header>
 
       <main className="max-w-7xl mx-auto px-4 pb-40 space-y-6">
-        <div className="max-w-7xl mx-auto bg-white/10 backdrop-blur-2xl border border-white/20 rounded-[40px] shadow-2xl p-6 transition-all duration-300">
+        <div className="max-w-7xl mx-auto bg-white/10 backdrop-blur-2xl border border-white/20 rounded-2xl sm:rounded-[40px] shadow-2xl p-4 sm:p-6 transition-all duration-300">
            <Toolbar onOpenImport={() => setIsImportOpen(true)} onOpenExport={() => setIsExportOpen(true)} onClearAll={() => {}} />
         </div>
-        <div className="max-w-7xl mx-auto bg-white/10 backdrop-blur-2xl border border-white/20 rounded-[40px] shadow-2xl p-6 transition-all duration-300">
+        <div className="max-w-7xl mx-auto bg-white/10 backdrop-blur-2xl border border-white/20 rounded-2xl sm:rounded-[40px] shadow-2xl p-4 sm:p-6 transition-all duration-300">
           <Filters cans={cans} activeFilters={activeFilters} setActiveFilters={setActiveFilters} />
         </div>
-        <div className="max-w-7xl mx-auto bg-white/10 backdrop-blur-2xl border border-white/20 rounded-[40px] shadow-2xl p-6 transition-all duration-300">
-          <div className="bg-white/95 rounded-[32px] p-2 flex items-center relative overflow-hidden shadow-sm border border-white">
-            <span className="absolute left-6 text-2xl z-10">🔍</span>
-            <input type="text" placeholder="Pesquisar..." className="w-full pl-16 pr-6 py-4 rounded-[24px] bg-transparent outline-none text-xl font-bold text-gray-800 transition-all" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+        <div className="max-w-7xl mx-auto bg-white/10 backdrop-blur-2xl border border-white/20 rounded-2xl sm:rounded-[40px] shadow-2xl p-4 sm:p-6 transition-all duration-300">
+          <div className="bg-white/95 rounded-xl sm:rounded-[40px] p-1 sm:p-2 flex items-center relative overflow-hidden shadow-sm border border-white">
+            <span className="absolute left-4 sm:left-6 text-xl sm:text-2xl z-10">🔍</span>
+            <input type="text" placeholder="Pesquisar..." className="w-full pl-12 sm:pl-16 pr-4 sm:pr-6 py-3 sm:py-4 rounded-lg sm:rounded-[32px] bg-transparent outline-none text-base sm:text-xl font-bold text-gray-800 transition-all" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
           </div>
         </div>
 
@@ -191,9 +191,9 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
         </div>
 
         {/* Barra de Visualização e Ordenação */}
-        <div className="flex justify-end items-center gap-4 mb-8 px-4 opacity-50 transition-opacity hover:opacity-100">
-          <div className="flex items-center gap-2">
-            <span className="text-[8px] font-black uppercase tracking-[2px] text-white/50">VISUALIZAÇÃO</span>
+        <div className="flex flex-wrap justify-between sm:justify-end items-center gap-2 sm:gap-4 mb-8 px-2 sm:px-4 opacity-70 sm:opacity-50 transition-opacity hover:opacity-100">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <span className="hidden md:inline text-[7px] sm:text-[8px] font-black uppercase tracking-[1px] sm:tracking-[2px] text-white/50">VISUALIZAÇÃO</span>
             <div className="flex gap-0.5 items-center">
               {[
                 { id: 'grid', icon: '⠿' },
@@ -204,28 +204,28 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
                 <button 
                   key={v.id}
                   onClick={() => setViewLayout(v.id as ViewLayout)}
-                  className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${viewLayout === v.id ? 'bg-white/10 text-white shadow-lg backdrop-blur-md' : 'text-white/30 hover:text-white/50'}`}
+                  className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center transition-all ${viewLayout === v.id ? 'bg-white/10 text-white shadow-lg backdrop-blur-md' : 'text-white/30 hover:text-white/50'}`}
                 >
-                  <span className="text-lg">{v.icon}</span>
+                  <span className="text-base sm:text-lg">{v.icon}</span>
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="w-[1px] h-3 bg-white/10 mx-1"></div>
+          <div className="hidden sm:block w-[1px] h-3 bg-white/10 mx-1"></div>
 
-          <div className="flex items-center gap-2">
-             <span className="text-[8px] font-black uppercase tracking-[2px] text-white/50">ORDENAR:</span>
+          <div className="flex items-center gap-1.5 sm:gap-2">
+             <span className="hidden md:inline text-[7px] sm:text-[8px] font-black uppercase tracking-[1px] sm:tracking-[2px] text-white/50">ORDENAR:</span>
              <div className="relative group">
-                <button className="text-[9px] font-black uppercase tracking-[1px] text-white flex items-center gap-1 hover:opacity-100 transition-all">
+                <button className="text-[8px] sm:text-[9px] font-black uppercase tracking-[1px] text-white flex items-center gap-1 hover:opacity-100 transition-all whitespace-nowrap">
                   {sortLabels[sortBy]} <span className="text-[6px] opacity-40">▼</span>
                 </button>
-                <div className="absolute top-full right-0 mt-2 bg-slate-900 border border-white/10 rounded-2xl shadow-2xl py-1.5 w-40 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                <div className="absolute top-full right-0 mt-2 bg-slate-900 border border-white/10 rounded-2xl shadow-2xl py-1.5 w-32 sm:w-40 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
                    {(['name', 'recent', 'year'] as SortOption[]).map(opt => (
                      <button 
                        key={opt}
                        onClick={() => setSortBy(opt)}
-                       className={`w-full text-left px-5 py-2 text-[9px] font-black uppercase tracking-widest transition-all ${sortBy === opt ? 'text-indigo-400 bg-white/5' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
+                       className={`w-full text-left px-4 sm:px-5 py-2 text-[8px] sm:text-[9px] font-black uppercase tracking-widest transition-all ${sortBy === opt ? 'text-indigo-400 bg-white/5' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
                      >
                        {sortLabels[opt]}
                      </button>
@@ -236,9 +236,9 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
 
           <button 
             onClick={scrollToTop}
-            className="w-8 h-8 flex items-center justify-center text-white/20 hover:text-white transition-all ml-0.5"
+            className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-white/20 hover:text-white transition-all ml-0.5"
           >
-            <span className="text-lg font-thin">↑</span>
+            <span className="text-base sm:text-lg font-thin">↑</span>
           </button>
         </div>
 
@@ -269,7 +269,12 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
         )}
       </main>
 
-      <button onClick={() => { setEditingCan(null); setIsModalOpen(true); }} className="fixed bottom-12 right-12 w-24 h-24 rounded-[32px] bg-[#F43F5E] shadow-2xl text-white text-6xl font-light flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-[60] border-4 border-white/20">+</button>
+      <button 
+        onClick={() => { setEditingCan(null); setIsModalOpen(true); }} 
+        className="fixed bottom-6 right-6 sm:bottom-12 sm:right-12 w-16 h-16 sm:w-24 sm:h-24 rounded-2xl sm:rounded-[32px] bg-[#F43F5E] shadow-2xl text-white text-4xl sm:text-6xl font-light flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-[60] border-2 sm:border-4 border-white/20"
+      >
+        +
+      </button>
       
       {selectedImage && (
         <FullScreenViewer 

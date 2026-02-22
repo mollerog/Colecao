@@ -42,14 +42,14 @@ const CanCard: React.FC<CanCardProps> = ({
         className={`bg-white rounded-[24px] shadow-sm overflow-hidden flex flex-col group border transition-all duration-500 animate-in fade-in zoom-in h-full relative cursor-pointer ${isSelected ? 'ring-4 ring-indigo-500/30 border-indigo-500 scale-[1.05]' : 'border-gray-100 hover:shadow-xl hover:scale-[1.05]'}`}>
         <SelectionOverlay />
         <div 
-          className="h-32 sm:h-40 bg-[#F8FAFF] relative flex items-center justify-center p-2 shrink-0 overflow-hidden cursor-zoom-in"
+          className="h-28 sm:h-40 bg-[#F8FAFF] relative flex items-center justify-center p-2 shrink-0 overflow-hidden cursor-zoom-in"
           onClick={(e) => { e.stopPropagation(); can.photo && onViewImage(can.photo); }}
         >
-          {can.photo ? <img src={can.photo} alt={can.brand} className="w-full h-full object-contain" /> : <div className="text-3xl opacity-10">🥤</div>}
+          {can.photo ? <img src={can.photo} alt={can.brand} className="w-full h-full object-contain" /> : <div className="text-2xl sm:text-3xl opacity-10">🥤</div>}
         </div>
-        <div className="p-3">
-          <p className="text-[11px] font-black text-[#6366F1] truncate mb-0.5">{(can.group || '')}</p>
-          <h3 className="text-[12px] font-bold text-gray-800 truncate leading-tight">{can.brand}</h3>
+        <div className="p-2 sm:p-3">
+          <p className="text-[9px] sm:text-[11px] font-black text-[#6366F1] truncate mb-0.5">{(can.group || '')}</p>
+          <h3 className="text-[10px] sm:text-[12px] font-bold text-gray-800 truncate leading-tight">{can.brand}</h3>
         </div>
         <div className="absolute inset-0 bg-indigo-600/90 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 p-2" onClick={(e) => e.stopPropagation()}>
            <button onClick={onEdit} className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-sm shadow-lg">✏️</button>
@@ -105,25 +105,25 @@ const CanCard: React.FC<CanCardProps> = ({
       <SelectionOverlay />
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#6366F1] to-[#9333EA] opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
       <div 
-        className={`${isLarge ? 'h-[400px]' : 'h-64'} bg-[#F8FAFF] relative flex items-center justify-center p-4 shrink-0 overflow-hidden cursor-zoom-in`}
+        className={`${isLarge ? 'h-[300px] sm:h-[400px]' : 'h-48 sm:h-64'} bg-[#F8FAFF] relative flex items-center justify-center p-3 sm:p-4 shrink-0 overflow-hidden cursor-zoom-in`}
         onClick={(e) => { e.stopPropagation(); can.photo && onViewImage(can.photo); }}
       >
-        {can.photo ? <img src={can.photo} alt={can.brand} className="w-full h-full object-contain drop-shadow-md" /> : <div className={`${isLarge ? 'text-9xl' : 'text-6xl'} opacity-10`}>🥤</div>}
+        {can.photo ? <img src={can.photo} alt={can.brand} className="w-full h-full object-contain drop-shadow-md" /> : <div className={`${isLarge ? 'text-7xl sm:text-9xl' : 'text-5xl sm:text-6xl'} opacity-10`}>🥤</div>}
       </div>
-      <div className={`p-5 ${isLarge ? 'p-10' : ''} flex-1 flex flex-col`}>
-        <p className={`${isLarge ? 'text-xl' : 'text-[14px]'} font-bold text-[#6366F1] leading-tight mb-0.5 truncate`}>{(can.group || '')} {can.acronym ? `(${can.acronym})` : ''}</p>
-        <h3 className={`${isLarge ? 'text-2xl' : 'text-[16px]'} font-semibold text-[#333] leading-tight mb-0.5 truncate`}>{can.brand || ''}</h3>
-        <div className="mb-1"><p className={`${isLarge ? 'text-lg' : 'text-[13px]'} font-medium text-gray-600 leading-tight truncate`}>{can.name || ''}</p></div>
-        {can.description && <div className="mt-1"><p className={`${isLarge ? 'text-base' : 'text-[12px]'} font-medium text-gray-400 italic leading-snug line-clamp-2`}>"{truncate(can.description, isLarge ? 200 : 80)}"</p></div>}
-        <div className="h-[1px] bg-gray-50 w-full my-3"></div>
-        <div className={`space-y-1.5 mb-5 ${isLarge ? 'grid grid-cols-3 gap-6 space-y-0' : ''}`}>
-          <div className="flex items-center gap-2 text-[11px]"><span className="shrink-0 text-base">🖼️</span><span className="text-gray-400 font-medium truncate uppercase tracking-tighter"><span className="text-gray-500 font-bold mr-1">ID:</span> {can.imageDesc}</span></div>
-          <div className="flex items-center gap-2 text-[11px]"><span className="shrink-0 text-base">📅</span><span className="text-gray-400 font-medium"><span className="text-gray-500 font-bold mr-1">Ano:</span>{can.year || '--'}</span></div>
-          <div className="flex items-center gap-2 text-[11px]"><span className="shrink-0 text-base">📏</span><span className="text-gray-400 font-medium"><span className="text-gray-500 font-bold mr-1">Tam:</span>{can.size || '--'}</span></div>
+      <div className={`p-4 sm:p-5 ${isLarge ? 'sm:p-10' : ''} flex-1 flex flex-col`}>
+        <p className={`${isLarge ? 'text-lg sm:text-xl' : 'text-[12px] sm:text-[14px]'} font-bold text-[#6366F1] leading-tight mb-0.5 truncate`}>{(can.group || '')} {can.acronym ? `(${can.acronym})` : ''}</p>
+        <h3 className={`${isLarge ? 'text-xl sm:text-2xl' : 'text-[14px] sm:text-[16px]'} font-semibold text-[#333] leading-tight mb-0.5 truncate`}>{can.brand || ''}</h3>
+        <div className="mb-1"><p className={`${isLarge ? 'text-base sm:text-lg' : 'text-[11px] sm:text-[13px]'} font-medium text-gray-600 leading-tight truncate`}>{can.name || ''}</p></div>
+        {can.description && <div className="mt-1"><p className={`${isLarge ? 'text-sm sm:text-base' : 'text-[10px] sm:text-[12px]'} font-medium text-gray-400 italic leading-snug line-clamp-2`}>"{truncate(can.description, isLarge ? 200 : 80)}"</p></div>}
+        <div className="h-[1px] bg-gray-50 w-full my-2 sm:my-3"></div>
+        <div className={`space-y-1 sm:space-y-1.5 mb-4 sm:mb-5 ${isLarge ? 'grid grid-cols-3 gap-6 space-y-0' : ''}`}>
+          <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px]"><span className="shrink-0 text-sm sm:text-base">🖼️</span><span className="text-gray-400 font-medium truncate uppercase tracking-tighter"><span className="text-gray-500 font-bold mr-1">ID:</span> {can.imageDesc}</span></div>
+          <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px]"><span className="shrink-0 text-sm sm:text-base">📅</span><span className="text-gray-400 font-medium"><span className="text-gray-500 font-bold mr-1">Ano:</span>{can.year || '--'}</span></div>
+          <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px]"><span className="shrink-0 text-sm sm:text-base">📏</span><span className="text-gray-400 font-medium"><span className="text-gray-500 font-bold mr-1">Tam:</span>{can.size || '--'}</span></div>
         </div>
-        <div className={`flex gap-2 mt-auto ${isLarge ? 'gap-6' : ''}`} onClick={(e) => e.stopPropagation()}>
-          <button onClick={onEdit} className={`flex-1 bg-[#F1F3FF] hover:bg-[#6366F1] text-[#6366F1] hover:text-white font-bold py-2.5 rounded-xl transition-all ${isLarge ? 'py-4 text-base' : 'text-[11px]'} border border-[#6366F1]/10`}>✏️ Editar</button>
-          <button onClick={onDelete} className={`flex-1 bg-[#FFF1F1] hover:bg-[#F43F5E] text-[#F43F5E] hover:text-white font-bold py-2.5 rounded-xl transition-all ${isLarge ? 'py-4 text-base' : 'text-[11px]'} border border-[#F43F5E]/10`}>🗑️ Deletar</button>
+        <div className={`flex gap-1.5 sm:gap-2 mt-auto ${isLarge ? 'sm:gap-6' : ''}`} onClick={(e) => e.stopPropagation()}>
+          <button onClick={onEdit} className={`flex-1 bg-[#F1F3FF] hover:bg-[#6366F1] text-[#6366F1] hover:text-white font-bold py-2 sm:py-2.5 rounded-xl transition-all ${isLarge ? 'sm:py-4 sm:text-base' : 'text-[10px] sm:text-[11px]'} border border-[#6366F1]/10`}>✏️ Editar</button>
+          <button onClick={onDelete} className={`flex-1 bg-[#FFF1F1] hover:bg-[#F43F5E] text-[#F43F5E] hover:text-white font-bold py-2 sm:py-2.5 rounded-xl transition-all ${isLarge ? 'sm:py-4 sm:text-base' : 'text-[10px] sm:text-[11px]'} border border-[#F43F5E]/10`}>🗑️ Deletar</button>
         </div>
       </div>
     </div>

@@ -42,14 +42,14 @@ const CarCard: React.FC<CarCardProps> = ({
         className={`bg-white rounded-[24px] shadow-sm overflow-hidden flex flex-col group border transition-all duration-500 animate-in fade-in zoom-in h-full relative cursor-pointer ${isSelected ? 'ring-4 ring-indigo-500/30 border-indigo-500 scale-[1.05]' : 'border-gray-100 hover:shadow-xl hover:scale-[1.05]'}`}>
         <SelectionOverlay />
         <div 
-          className="h-32 sm:h-40 bg-[#F8FAFF] relative flex items-center justify-center p-2 shrink-0 overflow-hidden cursor-zoom-in"
+          className="h-28 sm:h-40 bg-[#F8FAFF] relative flex items-center justify-center p-2 shrink-0 overflow-hidden cursor-zoom-in"
           onClick={(e) => { e.stopPropagation(); car.photo && onViewImage(car.photo); }}
         >
-          {car.photo ? <img src={car.photo} alt={car.minatureName} className="w-full h-full object-contain" /> : <div className="text-3xl opacity-10">🚗</div>}
+          {car.photo ? <img src={car.photo} alt={car.minatureName} className="w-full h-full object-contain" /> : <div className="text-2xl sm:text-3xl opacity-10">🚗</div>}
         </div>
-        <div className="p-3">
-          <p className="text-[11px] font-black text-[#6366F1] truncate mb-0.5">{car.miniatureBrand}</p>
-          <h3 className="text-[12px] font-bold text-gray-800 truncate leading-tight">{car.minatureName}</h3>
+        <div className="p-2 sm:p-3">
+          <p className="text-[9px] sm:text-[11px] font-black text-[#6366F1] truncate mb-0.5">{car.miniatureBrand}</p>
+          <h3 className="text-[10px] sm:text-[12px] font-bold text-gray-800 truncate leading-tight">{car.minatureName}</h3>
         </div>
         <div className="absolute inset-0 bg-indigo-600/90 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 p-2" onClick={(e) => e.stopPropagation()}>
            <button onClick={onEdit} className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-sm">✏️</button>
@@ -102,52 +102,52 @@ const CarCard: React.FC<CarCardProps> = ({
       <SelectionOverlay />
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
       <div 
-        className={`${isLarge ? 'h-[400px]' : 'h-56'} bg-[#F8FAFF] relative flex items-center justify-center p-4 shrink-0 overflow-hidden cursor-zoom-in`} 
+        className={`${isLarge ? 'h-[300px] sm:h-[400px]' : 'h-44 sm:h-56'} bg-[#F8FAFF] relative flex items-center justify-center p-3 sm:p-4 shrink-0 overflow-hidden cursor-zoom-in`} 
         onClick={(e) => { e.stopPropagation(); car.photo && onViewImage(car.photo); }}
       >
-        {car.photo ? <img src={car.photo} alt={car.minatureName} className="w-full h-full object-contain" /> : <div className={`${isLarge ? 'text-9xl' : 'text-6xl'} opacity-10`}>🚗</div>}
+        {car.photo ? <img src={car.photo} alt={car.minatureName} className="w-full h-full object-contain" /> : <div className={`${isLarge ? 'text-7xl sm:text-9xl' : 'text-5xl sm:text-6xl'} opacity-10`}>🚗</div>}
       </div>
-      <div className={`p-5 ${isLarge ? 'p-10' : ''} flex-1 flex flex-col`}>
-        <p className={`${isLarge ? 'text-xl' : 'text-[14px]'} font-bold text-indigo-600 leading-tight mb-0.5`}>{car.miniatureBrand} {car.line}</p>
-        <h3 className={`${isLarge ? 'text-2xl' : 'text-[16px]'} font-bold text-gray-800 leading-tight mb-1 truncate`}>{car.minatureName}</h3>
+      <div className={`p-4 sm:p-5 ${isLarge ? 'sm:p-10' : ''} flex-1 flex flex-col`}>
+        <p className={`${isLarge ? 'text-lg sm:text-xl' : 'text-[12px] sm:text-[14px]'} font-bold text-indigo-600 leading-tight mb-0.5`}>{car.miniatureBrand} {car.line}</p>
+        <h3 className={`${isLarge ? 'text-xl sm:text-2xl' : 'text-[14px] sm:text-[16px]'} font-bold text-gray-800 leading-tight mb-1 truncate`}>{car.minatureName}</h3>
         
         <div className="mb-1 flex items-center">
-          <p className={`${isLarge ? 'text-lg' : 'text-[13px]'} font-bold text-gray-500 leading-tight truncate uppercase tracking-tighter`}>{car.imageDesc}</p>
+          <p className={`${isLarge ? 'text-base sm:text-lg' : 'text-[11px] sm:text-[13px]'} font-bold text-gray-500 leading-tight truncate uppercase tracking-tighter`}>{car.imageDesc}</p>
         </div>
-
-        {car.description && <div className="mt-1"><p className="text-[12px] font-medium text-gray-400 italic line-clamp-2">"{truncate(car.description, 80)}"</p></div>}
-        <div className="h-[1px] bg-gray-50 w-full my-3"></div>
+ 
+        {car.description && <div className="mt-1"><p className="text-[10px] sm:text-[12px] font-medium text-gray-400 italic line-clamp-2">"{truncate(car.description, 80)}"</p></div>}
+        <div className="h-[1px] bg-gray-50 w-full my-2 sm:my-3"></div>
         
-        <div className={`grid grid-cols-2 gap-x-3 gap-y-1.5 mb-5 ${isLarge ? 'gap-6' : ''}`}>
-          <div className="flex items-center gap-2 text-[11px] overflow-hidden">
-            <span className="text-base shrink-0">📅</span>
+        <div className={`grid grid-cols-2 gap-x-2 sm:gap-x-3 gap-y-1 sm:gap-y-1.5 mb-4 sm:mb-5 ${isLarge ? 'gap-6' : ''}`}>
+          <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] overflow-hidden">
+            <span className="text-sm sm:text-base shrink-0">📅</span>
             <span className="text-gray-400 font-medium truncate"><span className="text-gray-500 font-bold mr-1">Ano:</span>{car.year || '--'}</span>
           </div>
-          <div className="flex items-center gap-2 text-[11px] overflow-hidden">
-            <span className="text-base shrink-0">🛠️</span>
+          <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] overflow-hidden">
+            <span className="text-sm sm:text-base shrink-0">🛠️</span>
             <span className="text-gray-400 font-medium truncate"><span className="text-gray-500 font-bold mr-1">Mat:</span>{car.material}</span>
           </div>
-          <div className="flex items-center gap-2 text-[11px] overflow-hidden">
-            <span className="text-base shrink-0">💎</span>
+          <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] overflow-hidden">
+            <span className="text-sm sm:text-base shrink-0">💎</span>
             <span className="text-gray-400 font-medium truncate"><span className="text-gray-500 font-bold mr-1">Est:</span>{car.condition}</span>
           </div>
-          <div className="flex items-center gap-2 text-[11px] overflow-hidden">
-            <span className="text-base shrink-0">🌍</span>
+          <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] overflow-hidden">
+            <span className="text-sm sm:text-base shrink-0">🌍</span>
             <span className="text-gray-400 font-medium truncate uppercase tracking-tighter"><span className="text-gray-500 font-bold mr-1">Ori:</span>{car.origin}</span>
           </div>
-          <div className="flex items-center gap-2 text-[11px] overflow-hidden">
-            <span className="text-base shrink-0">🎨</span>
+          <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] overflow-hidden">
+            <span className="text-sm sm:text-base shrink-0">🎨</span>
             <span className="text-gray-400 font-medium truncate"><span className="text-gray-500 font-bold mr-1">Cor:</span>{car.mainColor}</span>
           </div>
-          <div className="flex items-center gap-2 text-[11px] overflow-hidden">
-            <span className="text-base shrink-0">📏</span>
+          <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] overflow-hidden">
+            <span className="text-sm sm:text-base shrink-0">📏</span>
             <span className="text-gray-400 font-medium truncate"><span className="text-gray-500 font-bold mr-1">Esc:</span>{car.scale}</span>
           </div>
         </div>
         
-        <div className="flex gap-2 mt-auto" onClick={(e) => e.stopPropagation()}>
-          <button onClick={onEdit} className="flex-1 bg-indigo-50 text-indigo-600 font-bold py-2.5 rounded-xl text-[11px] border border-indigo-100 hover:bg-indigo-600 hover:text-white transition-all">✏️ Editar</button>
-          <button onClick={onDelete} className="flex-1 bg-red-50 text-red-500 font-bold py-2.5 rounded-xl text-[11px] border border-red-100 hover:bg-red-500 hover:text-white transition-all">🗑️ Deletar</button>
+        <div className="flex gap-1.5 sm:gap-2 mt-auto" onClick={(e) => e.stopPropagation()}>
+          <button onClick={onEdit} className="flex-1 bg-indigo-50 text-indigo-600 font-bold py-2 sm:py-2.5 rounded-xl text-[10px] sm:text-[11px] border border-indigo-100 hover:bg-indigo-600 hover:text-white transition-all">✏️ Editar</button>
+          <button onClick={onDelete} className="flex-1 bg-red-50 text-red-500 font-bold py-2 sm:py-2.5 rounded-xl text-[10px] sm:text-[11px] border border-red-100 hover:bg-red-500 hover:text-white transition-all">🗑️ Deletar</button>
         </div>
       </div>
     </div>
