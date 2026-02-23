@@ -128,12 +128,12 @@ const CarImportModal: React.FC<CarImportModalProps> = ({ db, user, onClose, curr
   return (
     <div className="fixed inset-0 z-[150] bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4">
       <div className="bg-white w-full max-w-6xl rounded-[40px] shadow-2xl flex flex-col max-h-[90vh] animate-in zoom-in duration-300">
-        <div className="p-6 sm:p-10 border-b flex justify-between items-center bg-indigo-600 text-white rounded-t-[40px]">
+        <div className="p-10 border-b flex justify-between items-center bg-indigo-600 text-white rounded-t-[40px]">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-black tracking-tight">Hub de Importação (Autos)</h2>
-            <p className="text-white/60 font-bold text-[10px] sm:text-xs uppercase tracking-widest mt-1">Gerencie sua garagem em massa</p>
+            <h2 className="text-3xl font-black tracking-tight">Hub de Importação (Autos)</h2>
+            <p className="text-white/60 font-bold text-xs uppercase tracking-widest mt-1">Gerencie sua garagem em massa</p>
           </div>
-          <button onClick={onClose} className="text-3xl font-thin text-white/40 hover:text-white transition-colors">×</button>
+          <button onClick={onClose} className="text-3xl font-thin text-white/40 hover:text-white">×</button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-10 space-y-10 bg-gray-50/50">
