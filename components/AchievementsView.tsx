@@ -30,7 +30,7 @@ const AchievementsView: React.FC<AchievementsViewProps> = ({ cans, onBack }) => 
     : 100;
 
   return (
-    <div className="min-h-screen gradient-bg text-white overflow-x-hidden pb-20">
+    <div className="min-h-screen gradient-bg text-white overflow-x-hidden pb-20 pt-10 sm:pt-0">
       {/* Persisted Header Style */}
       <header className="w-full p-6 sm:px-10 flex justify-between items-center animate-in fade-in duration-700">
         <div className="flex items-center gap-4">

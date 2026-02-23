@@ -160,7 +160,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
 
   return (
     <div className="min-h-screen gradient-bg">
-      <header className="text-white pt-8 pb-12 px-4 text-center">
+      <header className="text-white pt-14 sm:pt-8 pb-12 px-4 text-center">
         <div className="max-w-7xl mx-auto flex flex-row justify-between items-center mb-8 px-4 gap-2">
           <button onClick={onBack} className="bg-white/20 hover:bg-white/30 text-[8px] sm:text-[10px] font-black uppercase tracking-[1px] sm:tracking-[2px] px-4 sm:px-8 py-3 rounded-full transition-all border border-white/10 whitespace-nowrap">← Painel Principal</button>
           <button onClick={() => setIsStatsOpen(true)} className="bg-white text-indigo-600 hover:scale-105 active:scale-95 text-[8px] sm:text-[10px] font-black uppercase tracking-[1px] sm:tracking-[2px] px-4 sm:px-8 py-3 rounded-full transition-all shadow-xl whitespace-nowrap">⭐ Estatísticas</button>
@@ -210,15 +210,15 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
             <span className="hidden md:inline text-[7px] sm:text-[8px] font-black uppercase tracking-[1px] sm:tracking-[2px] text-white/50">VISUALIZAÇÃO</span>
             <div className="flex gap-0.5 items-center">
               {[
-                { id: 'grid', icon: '⠿' },
-                { id: 'large', icon: '▢' },
-                { id: 'compact', icon: '∷' },
-                { id: 'list', icon: '☰' }
+                { id: 'grid', icon: '⠿', hiddenOnMobile: true },
+                { id: 'large', icon: '▢', hiddenOnMobile: false },
+                { id: 'compact', icon: '∷', hiddenOnMobile: true },
+                { id: 'list', icon: '☰', hiddenOnMobile: false }
               ].map(v => (
                 <button 
                   key={v.id}
                   onClick={() => setViewLayout(v.id as ViewLayout)}
-                  className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center transition-all ${viewLayout === v.id ? 'bg-white/10 text-white shadow-lg backdrop-blur-md' : 'text-white/30 hover:text-white/50'}`}
+                  className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center transition-all ${v.hiddenOnMobile ? 'hidden sm:flex' : 'flex'} ${viewLayout === v.id ? 'bg-white/10 text-white shadow-lg backdrop-blur-md' : 'text-white/30 hover:text-white/50'}`}
                 >
                   <span className="text-base sm:text-lg">{v.icon}</span>
                 </button>

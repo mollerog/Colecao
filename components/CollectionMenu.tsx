@@ -87,8 +87,8 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({ user, cans, cards, cars
   ];
 
   return (
-    <div className="min-h-screen gradient-bg text-white pb-20">
-      <header className="w-full p-6 sm:px-10 flex flex-col sm:flex-row justify-between items-center gap-6 animate-in fade-in duration-700">
+    <div className="min-h-screen gradient-bg text-white pb-20 pt-7 sm:pt-0">
+      <header className="w-full p-3 sm:px-10 flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-6 animate-in fade-in duration-700">
         <div className="flex items-center gap-4 w-full sm:w-auto">
           <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-3xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center font-black text-2xl shadow-xl shrink-0">
             {user.email?.charAt(0).toUpperCase()}
@@ -103,16 +103,16 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({ user, cans, cards, cars
           </div>
         </div>
 
-        <div className="flex gap-3 w-full sm:w-auto">
+        <div className="flex gap-2 w-full sm:w-auto">
           <button 
             onClick={onViewAchievements}
-            className="flex-1 sm:flex-none bg-[#5549ED] hover:bg-[#4338CA] border border-white/20 px-8 py-3.5 rounded-full text-[10px] font-black uppercase tracking-[2.5px] transition-all flex items-center justify-center gap-2 shadow-xl active:scale-95"
+            className="flex-1 sm:flex-none bg-[#5549ED] hover:bg-[#4338CA] border border-white/20 px-3 sm:px-6 py-2 sm:py-2.5 rounded-full text-[7px] sm:text-[9px] font-black uppercase tracking-[1.2px] sm:tracking-[2px] transition-all flex items-center justify-center gap-2 shadow-xl active:scale-95"
           >
-            <span className="text-sm">🏆</span> CONQUISTAS
+            <span className="text-xs sm:text-sm">🏆</span> CONQUISTAS
           </button>
           <button 
             onClick={handleLogout}
-            className="flex-1 sm:flex-none bg-white/10 hover:bg-white/20 border border-white/10 px-8 py-3.5 rounded-full text-[10px] font-black uppercase tracking-[2.5px] transition-all active:scale-95 shadow-md"
+            className="flex-1 sm:flex-none bg-white/10 hover:bg-white/20 border border-white/10 px-3 sm:px-6 py-2 sm:py-2.5 rounded-full text-[7px] sm:text-[9px] font-black uppercase tracking-[1.2px] sm:tracking-[2px] transition-all active:scale-95 shadow-md"
           >
             SAIR
           </button>
@@ -142,7 +142,7 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({ user, cans, cards, cars
             `}
           >
             {cat.count && (
-              <div className="absolute top-6 right-6 sm:top-8 sm:right-8 bg-indigo-600 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-[8px] sm:text-[10px] font-black uppercase tracking-widest shadow-lg">
+              <div className="absolute top-6 right-6 sm:top-8 sm:right-8 bg-indigo-600 px-4 sm:px-6 py-2 sm:py-3 rounded-full text-[12px] sm:text-[14px] font-black uppercase tracking-widest shadow-lg">
                 {cat.count}
               </div>
             )}
