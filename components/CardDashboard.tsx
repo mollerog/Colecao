@@ -22,14 +22,13 @@ interface CardDashboardProps {
   auth: any;
   syncStatus: string;
   onBack: () => void;
-  externalAddTrigger?: number;
 }
 
 export type ViewLayout = 'grid' | 'large' | 'list' | 'compact';
 export type SortOption = 'name' | 'recent' | 'year';
 export type SortOrder = 'asc' | 'desc';
 
-const CardDashboard: React.FC<CardDashboardProps> = ({ user, cards, db, auth, syncStatus, onBack, externalAddTrigger }) => {
+const CardDashboard: React.FC<CardDashboardProps> = ({ user, cards, db, auth, syncStatus, onBack }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilters, setActiveFilters] = useState<any>({});
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -46,13 +45,6 @@ const CardDashboard: React.FC<CardDashboardProps> = ({ user, cards, db, auth, sy
   const [sortBy, setSortBy] = useState<SortOption>('name');
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (externalAddTrigger && externalAddTrigger > 0) {
-      setEditingCard(null);
-      setIsModalOpen(true);
-    }
-  }, [externalAddTrigger]);
 
   const toggleSelect = (id: string) => {
     setSelectedIds(prev => {
@@ -147,9 +139,9 @@ const CardDashboard: React.FC<CardDashboardProps> = ({ user, cards, db, auth, sy
 
   return (
     <div className="min-h-screen gradient-bg">
-      <header className="text-white pt-14 sm:pt-8 pb-12 px-4 text-center">
+      <header className="text-white pt-8 pb-12 px-4 text-center">
         <div className="max-w-7xl mx-auto flex flex-row justify-between items-center mb-8 px-4 gap-2">
-          <button onClick={onBack} className="bg-white/20 hover:bg-white/30 text-[8px] sm:text-[10px] font-black uppercase tracking-[1px] sm:tracking-[2px] px-4 sm:px-8 py-3 rounded-full transition-all border border-white/10 whitespace-nowrap">← Painel Principal</button>
+          <button onClick={onBack} className="bg-white/20 hover:bg-white/30 text-[8px] sm:text-[10px] font-black uppercase tracking-[1px] sm:tracking-[2px] px-4 sm:px-8 py-3 rounded-full transition-all border border-white/10 whitespace-nowrap">← Menu Principal</button>
           <button onClick={() => setIsStatsOpen(true)} className="bg-white text-indigo-600 hover:scale-105 active:scale-95 text-[8px] sm:text-[10px] font-black uppercase tracking-[1px] sm:tracking-[2px] px-4 sm:px-8 py-3 rounded-full transition-all shadow-xl whitespace-nowrap">⭐ Estatísticas</button>
         </div>
         <div className="flex flex-col items-center gap-2 mb-2">
@@ -176,9 +168,9 @@ const CardDashboard: React.FC<CardDashboardProps> = ({ user, cards, db, auth, sy
           <CardFilters cards={cards} activeFilters={activeFilters} setActiveFilters={setActiveFilters} />
         </div>
         <div className="max-w-7xl mx-auto bg-white/10 backdrop-blur-2xl border border-white/20 rounded-2xl sm:rounded-[40px] shadow-2xl p-4 sm:p-6 transition-all duration-300">
-          <div className="bg-white rounded-2xl sm:rounded-[40px] p-1 sm:p-2 flex items-center relative overflow-hidden shadow-xl border-2 border-white/50">
+          <div className="bg-white/95 rounded-xl sm:rounded-[40px] p-1 sm:p-2 flex items-center relative overflow-hidden shadow-sm border border-white">
             <span className="absolute left-4 sm:left-6 text-xl sm:text-2xl z-10">🔍</span>
-            <input type="text" placeholder="Pesquisar cartões..." className="w-full pl-12 sm:pl-16 pr-4 sm:pr-6 py-4 sm:py-5 rounded-xl sm:rounded-[32px] bg-transparent outline-none text-lg sm:text-xl font-bold text-gray-800 placeholder:text-gray-400 transition-all" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+            <input type="text" placeholder="Pesquisar cartões..." className="w-full pl-12 sm:pl-16 pr-4 sm:pr-6 py-3 sm:py-4 rounded-lg sm:rounded-[32px] bg-transparent outline-none text-base sm:text-xl font-bold text-gray-800 transition-all" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
           </div>
         </div>
 
@@ -272,7 +264,7 @@ const CardDashboard: React.FC<CardDashboardProps> = ({ user, cards, db, auth, sy
 
       <button 
         onClick={() => { setEditingCard(null); setIsModalOpen(true); }} 
-        className="hidden sm:flex fixed bottom-12 right-12 w-24 h-24 rounded-[32px] bg-[#F43F5E] shadow-2xl text-white text-6xl font-light items-center justify-center hover:scale-110 active:scale-95 transition-all z-[60] border-4 border-white/20"
+        className="fixed bottom-6 right-6 sm:bottom-12 sm:right-12 w-16 h-16 sm:w-24 sm:h-24 rounded-2xl sm:rounded-[32px] bg-[#F43F5E] shadow-2xl text-white text-4xl sm:text-6xl font-light flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-[60] border-2 sm:border-4 border-white/20"
       >
         +
       </button>

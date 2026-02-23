@@ -26,7 +26,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ onClearAll, onOpenImport, onOpenExpor
       </button>
       <button 
         onClick={onClearAll}
-        className={`${btnBase} bg-red-600 text-white flex-1 sm:flex-none`}
+        className={`${btnBase} bg-red-600 text-white flex-1 sm:flex-none hidden sm:flex`}
       >
         🗑️ <span className="hidden sm:inline">Limpar</span><span className="sm:hidden">Limpar</span>
       </button>
