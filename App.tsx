@@ -7,7 +7,6 @@ import CardDashboard from './components/CardDashboard';
 import CarDashboard from './components/CarDashboard';
 import CollectionMenu from './components/CollectionMenu';
 import AchievementsView from './components/AchievementsView';
-import BottomNav from './components/BottomNav';
 import { initializeApp } from 'firebase/app';
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 import { getFirestore, collection, onSnapshot, query } from 'firebase/firestore';
@@ -144,12 +143,6 @@ const App: React.FC = () => {
           externalAddTrigger={triggerAdd}
         />
       )}
-      
-      <BottomNav 
-        currentView={view} 
-        onNavigate={(v) => setView(v)} 
-        onAdd={() => setTriggerAdd(prev => prev + 1)} 
-      />
     </div>
   );
 };

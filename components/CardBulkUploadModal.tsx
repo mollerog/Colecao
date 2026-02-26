@@ -118,73 +118,126 @@ const CardBulkUploadModal: React.FC<CardBulkProps> = ({ cards, onClose, db, user
   };
 
   const matchedCount = matches.filter(m => m.status === 'matched').length;
+  const unmatchedCount = matches.filter(m => m.status === 'unmatched').length;
   const progressPercentage = progress.total > 0 ? Math.round((progress.current / progress.total) * 100) : 0;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-sm overflow-hidden">
-      <div className="bg-white w-full max-w-3xl rounded-[32px] shadow-2xl flex flex-col max-h-[90vh] relative">
+      <div className="bg-white w-full max-w-3xl rounded-[32px] shadow-2xl flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-300 relative">
         
         {(processing || progress.type === 'success') && (
-          <div className="absolute inset-0 z-[110] bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center p-12 rounded-[32px]">
+          <div className="absolute inset-0 z-[110] bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center p-12 rounded-[32px] transition-all duration-500">
             {progress.type === 'success' ? (
-              <div className="text-center animate-in zoom-in">
-                <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center text-5xl mb-6 mx-auto">✅</div>
+              <div className="text-center animate-in zoom-in duration-500">
+                <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center text-5xl mb-6 mx-auto shadow-lg shadow-green-100">✅</div>
                 <h3 className="text-3xl font-black text-slate-800 mb-2">Concluído!</h3>
-                <p className="text-gray-500 font-medium mb-8">{progress.total} fotos vinculadas.</p>
-                <button onClick={onClose} className="px-12 py-4 bg-green-500 text-white font-black rounded-2xl">Fechar Janela</button>
+                <p className="text-gray-500 font-medium text-lg mb-8">{progress.total} fotos vinculadas com sucesso.</p>
+                <button onClick={onClose} className="px-12 py-4 bg-green-500 hover:bg-green-600 text-white font-black rounded-2xl shadow-xl shadow-green-100 transition-all uppercase tracking-widest">Fechar Janela</button>
               </div>
             ) : (
               <div className="w-full max-w-md">
                 <div className="flex justify-between items-end mb-4">
-                  <h3 className="text-2xl font-black text-slate-800">{progress.type === 'loading' ? 'Lendo...' : 'Salvando...'}</h3>
-                  <span className="text-4xl font-black text-indigo-600">{progressPercentage}%</span>
+                  <div>
+                    <h3 className="text-2xl font-black text-slate-800">{progress.type === 'loading' ? 'Lendo Arquivos...' : 'Salvando na Nuvem...'}</h3>
+                    <p className="text-gray-400 font-bold text-sm uppercase tracking-widest mt-1">{progress.current} de {progress.total} processados</p>
+                  </div>
+                  <span className="text-4xl font-black text-[#6366F1]">{progressPercentage}%</span>
                 </div>
-                <div className="w-full h-4 bg-gray-100 rounded-full overflow-hidden p-0.5">
-                  <div className="h-full bg-indigo-600 transition-all rounded-full" style={{ width: `${progressPercentage}%` }} />
+                <div className="w-full h-4 bg-gray-100 rounded-full overflow-hidden shadow-inner p-0.5">
+                  <div className="h-full bg-gradient-to-r from-[#6366F1] via-[#818CF8] to-[#9333EA] transition-all duration-300 ease-out rounded-full shadow-sm" style={{ width: `${progressPercentage}%` }} />
                 </div>
               </div>
             )}
           </div>
         )}
 
-        <div className="px-8 py-6 flex justify-between items-center shrink-0 border-b">
-          <div className="flex items-center gap-3"><span className="text-2xl">📷</span><h2 className="text-[22px] font-bold text-indigo-600">Vincular Fotos (Cards)</h2></div>
-          <button onClick={onClose} className="p-2">×</button>
+        <div className="px-8 py-6 flex justify-between items-center shrink-0 border-b border-gray-50">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">💳</span>
+            <h2 className="text-[22px] font-bold text-[#6366F1]">Upload de Fotos em Lote</h2>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full hover:bg-gray-100">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
 
-        <div className="grid grid-cols-4 gap-4 px-8 py-6 bg-[#F8FAFF] shrink-0">
-          <div className="text-center"><p className="text-[20px] font-black text-red-500">{cardsWithoutPhotoCount}</p><p className="text-[9px] font-bold text-gray-400 uppercase">Cards sem Foto</p></div>
-          <div className="text-center border-l"><p className="text-[20px] font-black text-indigo-600">{matches.length}</p><p className="text-[9px] font-bold text-gray-400 uppercase">Lidos</p></div>
-          <div className="text-center border-l"><p className="text-[20px] font-black text-green-500">{matchedCount}</p><p className="text-[9px] font-bold text-gray-400 uppercase">OK</p></div>
-          <div className="text-center border-l"><p className="text-[20px] font-black text-amber-500">{matches.length - matchedCount}</p><p className="text-[9px] font-bold text-gray-400 uppercase">Não Batidas</p></div>
+        {/* Stats Row */}
+        <div className="grid grid-cols-4 divide-x divide-gray-100 px-2 sm:px-8 py-6 bg-[#F8FAFF] shrink-0 border-b border-gray-50">
+          <div className="text-center flex flex-col justify-between h-full px-1">
+            <p className="text-[18px] sm:text-[22px] font-black text-red-500 leading-none mb-2">{cardsWithoutPhotoCount}</p>
+            <p className="text-[7px] sm:text-[9px] font-bold text-gray-400 uppercase tracking-tight sm:tracking-tighter leading-tight">Cards sem Foto</p>
+          </div>
+          <div className="text-center flex flex-col justify-between h-full px-1">
+            <p className="text-[18px] sm:text-[22px] font-black text-[#6366F1] leading-none mb-2">{matches.length}</p>
+            <p className="text-[7px] sm:text-[9px] font-bold text-gray-400 uppercase tracking-tight sm:tracking-tighter leading-tight">Imagens Selecionadas</p>
+          </div>
+          <div className="text-center flex flex-col justify-between h-full px-1">
+            <p className="text-[18px] sm:text-[22px] font-black text-green-500 leading-none mb-2">{matchedCount}</p>
+            <p className="text-[7px] sm:text-[9px] font-bold text-gray-400 uppercase tracking-tight sm:tracking-tighter leading-tight">Imagens Atribuídas</p>
+          </div>
+          <div className="text-center flex flex-col justify-between h-full px-1">
+            <p className="text-[18px] sm:text-[22px] font-black text-amber-500 leading-none mb-2">{unmatchedCount}</p>
+            <p className="text-[7px] sm:text-[9px] font-bold text-gray-400 uppercase tracking-tight sm:tracking-tighter leading-tight">Não Vinculadas</p>
+          </div>
         </div>
 
+        {/* Upload Area */}
         <div className="flex-1 overflow-y-auto p-8 flex flex-col">
           {matches.length === 0 ? (
-            <div className="flex-1 min-h-[250px] border-2 border-dashed border-indigo-200 rounded-[24px] bg-[#F8FAFF] flex flex-col items-center justify-center p-12 text-center relative">
-              <input type="file" multiple accept="image/*" onChange={handleFiles} disabled={processing} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
-              <div className="text-4xl mb-4">🖼️</div>
-              <h3 className="text-xl font-bold">Clique para selecionar fotos</h3>
-              <p className="text-gray-400 text-sm mt-2">Nome do arquivo = Desc Imagem (ex: mastercard-black.jpg)</p>
+            <div className="flex-1 min-h-[180px] sm:min-h-[250px] border-2 border-dashed border-[#6366F1]/30 rounded-[24px] bg-[#F8FAFF] flex flex-col items-center justify-center p-6 sm:p-12 text-center relative hover:border-[#6366F1] transition-all group">
+              <input 
+                type="file" 
+                multiple 
+                accept="image/*" 
+                onChange={handleFiles} 
+                disabled={processing}
+                className="absolute inset-0 opacity-0 cursor-pointer z-10" 
+              />
+              <div className="bg-white p-3 sm:p-5 rounded-2xl mb-3 sm:mb-4 shadow-sm group-hover:scale-110 transition-transform">
+                <svg className="w-8 h-8 sm:w-12 sm:h-12 text-[#6366F1]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h3 className="text-lg sm:text-xl font-bold text-slate-800">Clique para selecionar as fotos</h3>
+              <p className="text-gray-400 text-[11px] sm:text-sm mt-1 sm:mt-2 max-w-xs mx-auto">
+                Certifique-se que o nome do arquivo seja igual ao campo 'Desc Imagem' (ex: mastercard-black.jpg).
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-4 gap-4">
               {matches.map((m, idx) => (
                 <div key={idx} className={`relative p-2 rounded-xl border ${m.status === 'matched' ? 'border-green-100 bg-green-50/30' : 'border-amber-100 bg-amber-50/30'}`}>
                    <img src={m.photo.data} className="w-full h-24 object-cover rounded-lg mb-2" />
-                   <p className="text-[9px] font-bold truncate">{m.photo.fileName}</p>
-                   <div className="absolute top-1 right-1">{m.status === 'matched' ? '✅' : '❓'}</div>
+                   <p className="text-[9px] font-bold truncate text-gray-500">{m.photo.fileName}</p>
+                   <div className="absolute top-1 right-1">
+                      {m.status === 'matched' ? '✅' : '❓'}
+                   </div>
                 </div>
               ))}
+              <div className="col-span-full mt-6">
+                <button 
+                  onClick={() => setMatches([])}
+                  className="text-xs font-bold text-gray-400 hover:text-red-500 uppercase tracking-widest"
+                >
+                  Limpar Seleção e Recomeçar
+                </button>
+              </div>
             </div>
           )}
         </div>
 
-        <div className="px-8 py-6 border-t flex justify-end gap-3 shrink-0">
-          <button onClick={onClose} className="px-6 py-3 font-bold text-gray-400">Cancelar</button>
-          {matches.length > 0 && <button onClick={handleSave} disabled={matchedCount === 0 || processing} className="px-10 py-3 rounded-xl bg-indigo-600 text-white font-bold disabled:opacity-30">
+        {/* Footer */}
+        <div className="px-8 py-6 border-t border-gray-50 flex justify-end gap-3 shrink-0">
+          <button onClick={onClose} className="px-6 py-3 rounded-xl font-bold text-gray-500 text-sm">Cancelar</button>
+          <button 
+            onClick={handleSave}
+            disabled={matchedCount === 0 || processing}
+            className="px-10 py-3 rounded-xl bg-[#6366F1] text-white font-bold shadow-lg shadow-indigo-200 disabled:opacity-30 transition-all text-sm uppercase tracking-wider"
+          >
             {processing ? 'Salvando...' : `Vincular ${matchedCount} Fotos`}
-          </button>}
+          </button>
         </div>
       </div>
     </div>

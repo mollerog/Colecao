@@ -117,9 +117,9 @@ const CanCard: React.FC<CanCardProps> = ({
         {can.description && <div className="mt-1"><p className={`${isLarge ? 'text-sm sm:text-base' : 'text-[10px] sm:text-[12px]'} font-medium text-gray-400 italic leading-snug line-clamp-2`}>"{truncate(can.description, isLarge ? 200 : 80)}"</p></div>}
         <div className="h-[1px] bg-gray-50 w-full my-2 sm:my-3"></div>
         <div className={`space-y-1 sm:space-y-1.5 mb-4 sm:mb-5 ${isLarge ? 'grid grid-cols-3 gap-6 space-y-0' : ''}`}>
-          <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px]"><span className="shrink-0 text-sm sm:text-base">🖼️</span><span className="text-gray-400 font-medium truncate uppercase tracking-tighter"><span className="text-gray-500 font-bold mr-1">ID:</span> {can.imageDesc}</span></div>
           <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px]"><span className="shrink-0 text-sm sm:text-base">📅</span><span className="text-gray-400 font-medium"><span className="text-gray-500 font-bold mr-1">Ano:</span>{can.year || '--'}</span></div>
           <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px]"><span className="shrink-0 text-sm sm:text-base">📏</span><span className="text-gray-400 font-medium"><span className="text-gray-500 font-bold mr-1">Tam:</span>{can.size || '--'}</span></div>
+          <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px]"><span className="shrink-0 text-sm sm:text-base">🖼️</span><span className="text-gray-400 font-medium truncate uppercase tracking-tighter"><span className="text-gray-500 font-bold mr-1">ID:</span> {can.imageDesc}</span></div>
         </div>
         <div className={`flex gap-1.5 sm:gap-2 mt-auto ${isLarge ? 'sm:gap-6' : ''}`} onClick={(e) => e.stopPropagation()}>
           <button onClick={onEdit} className={`flex-1 bg-[#F1F3FF] hover:bg-[#6366F1] text-[#6366F1] hover:text-white font-bold py-2 sm:py-2.5 rounded-xl transition-all ${isLarge ? 'sm:py-4 sm:text-base' : 'text-[10px] sm:text-[11px]'} border border-[#6366F1]/10`}>✏️ Editar</button>

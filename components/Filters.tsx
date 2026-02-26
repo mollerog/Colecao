@@ -46,75 +46,55 @@ const Filters: React.FC<FiltersProps> = ({ cans, activeFilters, setActiveFilters
   };
 
   const FilterSelect = ({ label, icon, field, options }: { label: string, icon: string, field: keyof Can, options: string[] }) => (
-    <div className="flex flex-col gap-1.5 min-w-[180px] flex-1">
-      <label className="text-[10px] font-black text-gray-400 flex items-center gap-1.5 ml-1 uppercase tracking-widest">
-        <span>{icon}</span> {label}
-      </label>
-      <div className="relative">
-        <select 
-          value={activeFilters[field] || ''} 
-          onChange={e => updateFilter(field as string, e.target.value)}
-          className="w-full bg-gray-50 border border-gray-100 p-3.5 rounded-2xl appearance-none focus:ring-2 focus:ring-indigo-500/10 outline-none text-[12px] font-bold text-gray-700 cursor-pointer transition-all"
-        >
-          <option value="">Todos</option>
-          <option value={BLANK_VALUE} className="text-red-500 font-bold">[ Em Branco ]</option>
-          {options.map(o => <option key={o} value={o}>{o}</option>)}
-        </select>
-        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-300 text-[10px]">
-          ▼
-        </div>
+    <div className="relative flex-1 min-w-[120px]">
+      <select 
+        value={activeFilters[field] || ''} 
+        onChange={e => updateFilter(field as string, e.target.value)}
+        className="w-full bg-white text-indigo-600 px-4 py-3 rounded-[20px] text-[11px] font-black uppercase tracking-wider appearance-none outline-none cursor-pointer transition-all hover:bg-indigo-50 shadow-sm pr-10 truncate"
+      >
+        <option value="">{label}</option>
+        <option value={BLANK_VALUE}>[ Vazio ]</option>
+        {options.map(o => <option key={o} value={o}>{o}</option>)}
+      </select>
+      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-indigo-400 text-[10px]">
+        ▼
       </div>
     </div>
   );
 
   return (
     <div className="w-full">
-      <div className="bg-white/95 rounded-2xl sm:rounded-[40px] p-1.5 sm:p-2 shadow-sm border border-white">
-        <button 
-          onClick={() => setIsOpen(!isOpen)}
-          className="w-full flex justify-between items-center px-4 py-3 sm:px-6 sm:py-4 hover:bg-gray-50/50 rounded-xl sm:rounded-[38px] transition-colors group"
-        >
-          <div className="flex items-center gap-3 sm:gap-4">
-            <span className="text-xl sm:text-2xl group-hover:scale-110 transition-transform">🔍</span>
-            <span className="text-sm sm:text-lg font-black text-slate-800 uppercase tracking-[2px] sm:tracking-[4px]">Filtros Avançados</span>
-          </div>
-          <div className={`text-slate-400 transition-all duration-500 ${isOpen ? 'rotate-180 text-indigo-600' : ''}`}>
-            <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-            </svg>
-          </div>
-        </button>
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full bg-white rounded-[24px] px-6 sm:px-10 py-2.5 flex items-center justify-between shadow-xl transition-all hover:bg-gray-50 group"
+      >
+        <div className="flex items-center gap-4">
+          <span className="text-xl sm:text-2xl">🔍</span>
+          <span className="text-sm sm:text-lg font-black text-slate-800 tracking-[2px] uppercase">Filtros Avançados</span>
+        </div>
+        <span className={`text-xl sm:text-2xl text-slate-400 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>
+          ▼
+        </span>
+      </button>
 
-        {isOpen && (
-          <div className="animate-in fade-in slide-in-from-top-4 duration-500 mt-6 pt-6 border-t border-gray-50">
-            <div className="flex flex-wrap gap-5">
-              <FilterSelect label="Grupo" icon="🏢" field="group" options={getOptions('group')} />
-              <FilterSelect label="Sigla" icon="🔠" field="acronym" options={getOptions('acronym')} />
-              <FilterSelect label="Marca" icon="🥤" field="brand" options={getOptions('brand')} />
-              <FilterSelect label="Ano" icon="📅" field="year" options={getOptions('year')} />
-              <FilterSelect label="Tamanho" icon="📏" field="size" options={getOptions('size')} />
-            </div>
-
-            {Object.keys(activeFilters).length > 0 && (
-              <div className="mt-8 flex flex-wrap gap-2 items-center justify-center pt-6 border-t border-gray-50">
-                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2">Ativos:</span>
-                {Object.entries(activeFilters).map(([key, value]) => (
-                  <span key={key} className="bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-full text-[10px] font-bold flex items-center gap-2 border border-indigo-100">
-                    {value === BLANK_VALUE ? '[Em Branco]' : String(value)}
-                    <button onClick={() => updateFilter(key, '')} className="hover:text-red-500 font-bold transition-colors">×</button>
-                  </span>
-                ))}
-                <button 
-                  onClick={() => setActiveFilters({})}
-                  className="text-[10px] font-black text-red-400 hover:text-red-500 ml-2 uppercase tracking-widest transition-colors"
-                >
-                  Limpar tudo
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+      {isOpen && (
+        <div className="mt-6 flex flex-wrap justify-center items-center gap-3 w-full animate-in slide-in-from-top-4 duration-300">
+          <FilterSelect label="Grupo" icon="🏢" field="group" options={getOptions('group')} />
+          <FilterSelect label="Sigla" icon="🔠" field="acronym" options={getOptions('acronym')} />
+          <FilterSelect label="Marca" icon="🥤" field="brand" options={getOptions('brand')} />
+          <FilterSelect label="Ano" icon="📅" field="year" options={getOptions('year')} />
+          <FilterSelect label="Tamanho" icon="📏" field="size" options={getOptions('size')} />
+          
+          {Object.keys(activeFilters).length > 0 && (
+            <button 
+              onClick={() => setActiveFilters({})}
+              className="px-6 py-3 bg-[#E11D48] text-white text-[11px] font-black uppercase tracking-widest rounded-[20px] hover:bg-red-700 transition-all shadow-lg"
+            >
+              Limpar Filtros
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 };

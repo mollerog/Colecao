@@ -55,24 +55,24 @@ const CanModal: React.FC<CanModalProps> = ({ can, onClose, onSave }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-white w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
-        <div className="p-6 border-b border-gray-100 flex justify-between items-center gradient-bg text-white">
-          <h2 className="text-xl font-bold">{can ? '✏️ Editar Lata' : '➕ Adicionar Nova Lata'}</h2>
-          <button onClick={onClose} className="text-white/80 hover:text-white text-2xl font-light">×</button>
+    <div className="fixed inset-0 z-[400] flex items-center justify-center sm:p-4 bg-black/60 backdrop-blur-sm">
+      <div className="bg-white w-full h-full sm:max-h-[90vh] sm:max-w-2xl sm:rounded-3xl overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200 flex flex-col">
+        <div className="p-4 sm:p-6 border-b border-gray-100 flex justify-between items-center gradient-bg text-white shrink-0">
+          <h2 className="text-lg sm:text-xl font-bold">{can ? '✏️ Editar Lata' : '➕ Adicionar Nova Lata'}</h2>
+          <button onClick={onClose} className="text-white/80 hover:text-white text-3xl font-light p-2">×</button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-8 space-y-6 max-h-[80vh] overflow-y-auto">
+        <form onSubmit={handleSubmit} className="p-5 sm:p-8 space-y-4 sm:space-y-6 overflow-y-auto flex-1">
           {/* Photo Section */}
           <div className="flex flex-col items-center">
-            <div className="w-full h-48 rounded-2xl bg-gray-50 border-2 border-dashed border-gray-200 overflow-hidden relative group cursor-pointer">
+            <div className="w-full h-40 sm:h-48 rounded-2xl bg-gray-50 border-2 border-dashed border-gray-200 overflow-hidden relative group cursor-pointer">
               <input type="file" accept="image/*" onChange={handlePhotoChange} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
               {formData.photo ? (
                 <img src={formData.photo} className="w-full h-full object-contain" alt="Preview" />
               ) : (
                 <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 group-hover:text-purple-500 transition-colors">
-                  <span className="text-4xl mb-2">📸</span>
-                  <p className="text-sm font-medium">Clique para carregar foto</p>
+                  <span className="text-3xl sm:text-4xl mb-2">📸</span>
+                  <p className="text-xs sm:text-sm font-medium">Clique para carregar foto</p>
                 </div>
               )}
               {isAnalyzing && (
@@ -83,46 +83,48 @@ const CanModal: React.FC<CanModalProps> = ({ can, onClose, onSave }) => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">🏢 Grupo</label>
-              <input required value={formData.group} onChange={e => setFormData({...formData, group: e.target.value})} className="w-full px-4 py-3 rounded-xl bg-gray-50 border-0 focus:ring-2 focus:ring-purple-500 outline-none" placeholder="Ex: Coca-Cola" />
+              <label className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider">🏢 Grupo</label>
+              <input required value={formData.group} onChange={e => setFormData({...formData, group: e.target.value})} className="w-full px-4 py-2.5 sm:py-3 rounded-xl bg-gray-50 border-0 focus:ring-2 focus:ring-purple-500 outline-none text-sm sm:text-base" placeholder="Ex: Coca-Cola" />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">🔤 Sigla</label>
-              <input required value={formData.acronym} onChange={e => setFormData({...formData, acronym: e.target.value})} className="w-full px-4 py-3 rounded-xl bg-gray-50 border-0 focus:ring-2 focus:ring-purple-500 outline-none" placeholder="Ex: TCCC" />
+              <label className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider">🔤 Sigla</label>
+              <input required value={formData.acronym} onChange={e => setFormData({...formData, acronym: e.target.value})} className="w-full px-4 py-2.5 sm:py-3 rounded-xl bg-gray-50 border-0 focus:ring-2 focus:ring-purple-500 outline-none text-sm sm:text-base" placeholder="Ex: TCCC" />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">🥤 Marca</label>
-              <input required value={formData.brand} onChange={e => setFormData({...formData, brand: e.target.value})} className="w-full px-4 py-3 rounded-xl bg-gray-50 border-0 focus:ring-2 focus:ring-purple-500 outline-none" placeholder="Ex: Fanta" />
+              <label className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider">🥤 Marca</label>
+              <input required value={formData.brand} onChange={e => setFormData({...formData, brand: e.target.value})} className="w-full px-4 py-2.5 sm:py-3 rounded-xl bg-gray-50 border-0 focus:ring-2 focus:ring-purple-500 outline-none text-sm sm:text-base" placeholder="Ex: Fanta" />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">🏷️ Nome</label>
-              <input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-3 rounded-xl bg-gray-50 border-0 focus:ring-2 focus:ring-purple-500 outline-none" placeholder="Ex: Fanta Uva" />
+              <label className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider">🏷️ Nome</label>
+              <input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-2.5 sm:py-3 rounded-xl bg-gray-50 border-0 focus:ring-2 focus:ring-purple-500 outline-none text-sm sm:text-base" placeholder="Ex: Fanta Uva" />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">📅 Ano</label>
-              <input type="number" value={formData.year} onChange={e => setFormData({...formData, year: e.target.value})} className="w-full px-4 py-3 rounded-xl bg-gray-50 border-0 focus:ring-2 focus:ring-purple-500 outline-none" placeholder="Ex: 2024" />
+              <label className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider">📅 Ano</label>
+              <input type="number" value={formData.year} onChange={e => setFormData({...formData, year: e.target.value})} className="w-full px-4 py-2.5 sm:py-3 rounded-xl bg-gray-50 border-0 focus:ring-2 focus:ring-purple-500 outline-none text-sm sm:text-base" placeholder="Ex: 2024" />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">📏 Tamanho</label>
-              <input required value={formData.size} onChange={e => setFormData({...formData, size: e.target.value})} className="w-full px-4 py-3 rounded-xl bg-gray-50 border-0 focus:ring-2 focus:ring-purple-500 outline-none" placeholder="Ex: 350ml" />
+              <label className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider">📏 Tamanho</label>
+              <input required value={formData.size} onChange={e => setFormData({...formData, size: e.target.value})} className="w-full px-4 py-2.5 sm:py-3 rounded-xl bg-gray-50 border-0 focus:ring-2 focus:ring-purple-500 outline-none text-sm sm:text-base" placeholder="Ex: 350ml" />
             </div>
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">🖼️ Descrição da Imagem (para busca interna)</label>
-            <input required value={formData.imageDesc} onChange={e => setFormData({...formData, imageDesc: e.target.value})} className="w-full px-4 py-3 rounded-xl bg-gray-50 border-0 focus:ring-2 focus:ring-purple-500 outline-none" placeholder="Ex: fanta-uva-lata-2024" />
+            <label className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider">🖼️ Descrição da Imagem (para busca interna)</label>
+            <input required value={formData.imageDesc} onChange={e => setFormData({...formData, imageDesc: e.target.value})} className="w-full px-4 py-2.5 sm:py-3 rounded-xl bg-gray-50 border-0 focus:ring-2 focus:ring-purple-500 outline-none text-sm sm:text-base" placeholder="Ex: fanta-uva-lata-2024" />
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">📝 Descrição da Lata</label>
-            <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="w-full px-4 py-3 rounded-xl bg-gray-50 border-0 focus:ring-2 focus:ring-purple-500 outline-none min-h-[100px]" placeholder="Características especiais..." />
+            <label className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider">📝 Descrição da Lata</label>
+            <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="w-full px-4 py-2.5 sm:py-3 rounded-xl bg-gray-50 border-0 focus:ring-2 focus:ring-purple-500 outline-none min-h-[80px] sm:min-h-[100px] text-sm sm:text-base" placeholder="Características especiais..." />
           </div>
 
-          <button type="submit" className="w-full py-4 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-lg shadow-xl transition-all">
-            💾 Salvar Lata
-          </button>
+          <div className="pt-2">
+            <button type="submit" className="w-full py-3.5 sm:py-4 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-base sm:text-lg shadow-xl transition-all active:scale-95">
+              💾 Salvar Lata
+            </button>
+          </div>
         </form>
       </div>
     </div>

@@ -111,92 +111,92 @@ const ExportModal: React.FC<ExportModalProps> = ({ allCans, selectedCans, onClos
   return (
     <div className="fixed inset-0 z-[150] bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4">
       <div className="bg-white w-full max-w-2xl rounded-[40px] shadow-2xl flex flex-col max-h-[90vh] animate-in zoom-in duration-300 overflow-hidden">
-        <div className="p-6 sm:p-10 border-b flex justify-between items-center bg-indigo-600 text-white">
+        <div className="p-4 sm:p-6 border-b flex justify-between items-center bg-indigo-600 text-white">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-black tracking-tight">Exportar Dados</h2>
+            <h2 className="text-xl sm:text-2xl font-black tracking-tight">Exportar Dados</h2>
             <p className="text-white/60 font-bold text-[10px] sm:text-xs uppercase tracking-widest mt-1">Escolha o formato e o alcance</p>
           </div>
           <button onClick={onClose} className="text-3xl font-thin text-white/40 hover:text-white transition-colors">×</button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 sm:p-10 space-y-6 sm:space-y-10">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
           {/* Scope Select */}
-          <div className="space-y-4">
-            <h4 className="text-[10px] sm:text-sm font-black text-slate-800 uppercase tracking-widest">O que exportar?</h4>
-            <div className="flex gap-3 sm:gap-4">
+          <div className="space-y-3">
+            <h4 className="text-[10px] sm:text-xs font-black text-slate-800 uppercase tracking-widest">O que exportar?</h4>
+            <div className="flex gap-2 sm:gap-4">
                <button 
                 onClick={() => setScope('all')}
-                className={`flex-1 p-4 sm:p-5 rounded-2xl border-2 transition-all text-left ${scope === 'all' ? 'border-indigo-500 bg-indigo-50/50' : 'border-gray-100 hover:border-gray-200'}`}
+                className={`flex-1 p-3 sm:p-4 rounded-2xl border-2 transition-all text-left ${scope === 'all' ? 'border-indigo-500 bg-indigo-50/50' : 'border-gray-100 hover:border-gray-200'}`}
                >
-                 <p className="font-bold text-slate-700 text-sm sm:text-base">Toda a Coleção</p>
-                 <p className="text-[10px] sm:text-xs text-slate-400">{allCans.length} itens detectados</p>
+                 <p className="font-bold text-slate-700 text-xs sm:text-base">Toda a Coleção</p>
+                 <p className="text-[9px] sm:text-xs text-slate-400">{allCans.length} itens detectados</p>
                </button>
                <button 
                 onClick={onEnterSelectionMode}
-                className={`flex-1 p-4 sm:p-5 rounded-2xl border-2 transition-all text-left ${scope === 'selected' ? 'border-indigo-500 bg-indigo-50/50' : 'border-gray-100 hover:border-gray-200'}`}
+                className={`flex-1 p-3 sm:p-4 rounded-2xl border-2 transition-all text-left ${scope === 'selected' ? 'border-indigo-500 bg-indigo-50/50' : 'border-gray-100 hover:border-gray-200'}`}
                >
-                 <p className="font-bold text-slate-700 text-sm sm:text-base">Escolher na Grade</p>
-                 <p className="text-[10px] sm:text-xs text-slate-400">Ativar checkboxes</p>
+                 <p className="font-bold text-slate-700 text-xs sm:text-base">Escolher na Grade</p>
+                 <p className="text-[9px] sm:text-xs text-slate-400">Ativar checkboxes</p>
                </button>
             </div>
             
             {selectedCans.length > 0 && (
               <button 
                 onClick={() => setScope('selected')}
-                className={`w-full p-4 rounded-2xl border-2 transition-all flex items-center justify-between ${scope === 'selected' ? 'border-green-500 bg-green-50/50' : 'border-gray-100'}`}
+                className={`w-full p-3 rounded-2xl border-2 transition-all flex items-center justify-between ${scope === 'selected' ? 'border-green-500 bg-green-50/50' : 'border-gray-100'}`}
               >
-                <span className="font-bold text-slate-700">✓ Usar Seleção Atual</span>
-                <span className="bg-green-500 text-white px-3 py-1 rounded-full text-[10px] font-black">{selectedCans.length} ITENS</span>
+                <span className="font-bold text-slate-700 text-xs sm:text-base">✓ Usar Seleção Atual</span>
+                <span className="bg-green-500 text-white px-3 py-1 rounded-full text-[9px] font-black">{selectedCans.length} ITENS</span>
               </button>
             )}
           </div>
 
           {/* Formats */}
-          <div className="space-y-4">
-            <h4 className="text-[10px] sm:text-sm font-black text-slate-800 uppercase tracking-widest">Escolha o Formato</h4>
-            <div className="grid grid-cols-3 sm:grid-cols-3 gap-3 sm:gap-4">
+          <div className="space-y-3">
+            <h4 className="text-[10px] sm:text-xs font-black text-slate-800 uppercase tracking-widest">Escolha o Formato</h4>
+            <div className="grid grid-cols-3 sm:grid-cols-3 gap-2 sm:gap-4">
               <button 
                 onClick={exportExcel}
-                className="bg-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-gray-100 shadow-sm hover:shadow-md hover:scale-[1.03] transition-all flex flex-col items-center gap-2 sm:gap-3 group"
+                className="bg-white p-3 sm:p-4 rounded-2xl sm:rounded-3xl border border-gray-100 shadow-sm hover:shadow-md hover:scale-[1.03] transition-all flex flex-col items-center gap-1 sm:gap-2 group"
               >
-                <div className="text-2xl sm:text-3xl group-hover:scale-110 transition-transform">📊</div>
+                <div className="text-xl sm:text-2xl group-hover:scale-110 transition-transform">📊</div>
                 <div className="text-center">
-                  <p className="text-[9px] sm:text-[11px] font-black text-slate-800 uppercase">Excel</p>
-                  <p className="hidden sm:block text-[9px] text-gray-400 font-bold uppercase tracking-tighter">Planilha Editável</p>
+                  <p className="text-[8px] sm:text-[10px] font-black text-slate-800 uppercase">Excel</p>
+                  <p className="hidden sm:block text-[8px] text-gray-400 font-bold uppercase tracking-tighter">Planilha</p>
                 </div>
               </button>
 
               <button 
                 onClick={exportPDF}
-                className="bg-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-gray-100 shadow-sm hover:shadow-md hover:scale-[1.03] transition-all flex flex-col items-center gap-2 sm:gap-3 group"
+                className="bg-white p-3 sm:p-4 rounded-2xl sm:rounded-3xl border border-gray-100 shadow-sm hover:shadow-md hover:scale-[1.03] transition-all flex flex-col items-center gap-1 sm:gap-2 group"
               >
-                <div className="text-2xl sm:text-3xl group-hover:scale-110 transition-transform">📄</div>
+                <div className="text-xl sm:text-2xl group-hover:scale-110 transition-transform">📄</div>
                 <div className="text-center">
-                  <p className="text-[9px] sm:text-[11px] font-black text-slate-800 uppercase">PDF</p>
-                  <p className="hidden sm:block text-[9px] text-gray-400 font-bold uppercase tracking-tighter">Relatório Prático</p>
+                  <p className="text-[8px] sm:text-[10px] font-black text-slate-800 uppercase">PDF</p>
+                  <p className="hidden sm:block text-[8px] text-gray-400 font-bold uppercase tracking-tighter">Relatório</p>
                 </div>
               </button>
 
               <button 
                 onClick={exportZip}
                 disabled={isExporting}
-                className="bg-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-gray-100 shadow-sm hover:shadow-md hover:scale-[1.03] transition-all flex flex-col items-center gap-2 sm:gap-3 group overflow-hidden relative"
+                className="bg-white p-3 sm:p-4 rounded-2xl sm:rounded-3xl border border-gray-100 shadow-sm hover:shadow-md hover:scale-[1.03] transition-all flex flex-col items-center gap-1 sm:gap-2 group overflow-hidden relative"
               >
                 {isExporting && (
                   <div className="absolute inset-0 bg-indigo-600/10 animate-pulse"></div>
                 )}
-                <div className="text-2xl sm:text-3xl group-hover:scale-110 transition-transform">📦</div>
+                <div className="text-xl sm:text-2xl group-hover:scale-110 transition-transform">📦</div>
                 <div className="text-center">
-                  <p className="text-[9px] sm:text-[11px] font-black text-slate-800 uppercase">ZIP</p>
-                  <p className="hidden sm:block text-[9px] text-gray-400 font-bold uppercase tracking-tighter">Dados Completo</p>
+                  <p className="text-[8px] sm:text-[10px] font-black text-slate-800 uppercase">ZIP</p>
+                  <p className="hidden sm:block text-[8px] text-gray-400 font-bold uppercase tracking-tighter">Completo</p>
                 </div>
               </button>
             </div>
           </div>
         </div>
 
-        <div className="p-6 sm:p-8 bg-gray-50 flex justify-center">
-          <button onClick={onClose} className="text-[10px] font-black text-gray-400 uppercase tracking-[3px] hover:text-indigo-600 transition-colors">Fechar Janela</button>
+        <div className="p-4 sm:p-4 bg-gray-50 flex justify-center">
+          <button onClick={onClose} className="text-[9px] font-black text-gray-400 uppercase tracking-[2px] hover:text-indigo-600 transition-colors">Fechar Janela</button>
         </div>
       </div>
     </div>

@@ -11,6 +11,8 @@ const FullScreenViewer: React.FC<FullScreenViewerProps> = ({ imageUrl, onClose }
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const initialPinchDistanceRef = useRef<number | null>(null);
+  const initialPinchScaleRef = useRef<number>(1);
   
   const containerRef = useRef<HTMLDivElement>(null);
   const imgWrapperRef = useRef<HTMLDivElement>(null);
@@ -83,6 +85,42 @@ const FullScreenViewer: React.FC<FullScreenViewerProps> = ({ imageUrl, onClose }
 
   const onMouseUp = () => {
     setIsDragging(false);
+    initialPinchDistanceRef.current = null;
+  };
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      if (scale <= 1) return;
+      setIsDragging(true);
+      const touch = e.touches[0];
+      setDragStart({ x: touch.clientX - position.x, y: touch.clientY - position.y });
+    } else if (e.touches.length === 2) {
+      setIsDragging(false);
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      initialPinchDistanceRef.current = dist;
+      initialPinchScaleRef.current = scale;
+    }
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      if (!isDragging || scale <= 1) return;
+      const touch = e.touches[0];
+      setPosition({
+        x: touch.clientX - dragStart.x,
+        y: touch.clientY - dragStart.y
+      });
+    } else if (e.touches.length === 2 && initialPinchDistanceRef.current !== null) {
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      const newScale = initialPinchScaleRef.current * (dist / initialPinchDistanceRef.current);
+      setScale(Math.min(Math.max(newScale, 1), 5));
+    }
   };
 
   const getCursor = () => {
@@ -96,40 +134,54 @@ const FullScreenViewer: React.FC<FullScreenViewerProps> = ({ imageUrl, onClose }
       className="fixed inset-0 z-[300] bg-slate-950/98 backdrop-blur-3xl flex flex-col items-center justify-center overflow-hidden transition-all duration-500 animate-in fade-in"
       onMouseUp={onMouseUp}
       onMouseLeave={onMouseUp}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onMouseUp}
     >
       {/* HUD Superior */}
-      <div className="absolute top-0 left-0 w-full p-6 sm:p-10 flex justify-between items-start z-[320] pointer-events-none">
-        <div className="flex flex-col gap-3">
-          <div className="bg-white/10 backdrop-blur-2xl border border-white/20 px-6 py-2.5 rounded-full flex items-center gap-4 pointer-events-auto shadow-2xl">
+      <div className="absolute top-0 left-0 w-full p-4 sm:p-10 flex flex-row justify-between items-center sm:items-start z-[320] pointer-events-none gap-2 sm:gap-4">
+        {/* Botão Zoom (Mobile Only) */}
+        <div className="sm:hidden pointer-events-auto">
+          <button 
+            onClick={handleZoomToggle}
+            className={`w-11 h-11 rounded-xl border flex items-center justify-center transition-all shadow-2xl ${scale > 1 ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-white/5 border-white/10 text-white/60'}`}
+          >
+            <span className="text-xl font-light">{scale > 1 ? '−' : '+'}</span>
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-2 sm:gap-3 items-center sm:items-start flex-1 sm:flex-none">
+          <div className="bg-white/10 backdrop-blur-2xl border border-white/20 px-3 sm:px-6 py-2 rounded-full flex items-center gap-2 sm:gap-4 pointer-events-auto shadow-2xl">
             <div className="relative flex items-center justify-center">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping absolute"></span>
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 relative"></span>
+              <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-400 animate-ping absolute"></span>
+              <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-500 relative"></span>
             </div>
-            <div className="flex items-center gap-3 divide-x divide-white/10">
-              <span className="text-[11px] font-black text-white uppercase tracking-[4px]">Inspeção HD</span>
-              <span className="pl-3 text-[11px] font-black text-emerald-400 font-mono tracking-widest">
+            <div className="flex items-center gap-2 sm:gap-3 divide-x divide-white/10">
+              <span className="text-[8px] sm:text-[11px] font-black text-white uppercase tracking-[1px] sm:tracking-[4px] whitespace-nowrap">Inspeção HD</span>
+              <span className="pl-2 sm:pl-3 text-[12px] sm:text-[11px] font-black text-emerald-400 font-mono tracking-widest">
                 {Math.round(scale * 100)}%
               </span>
             </div>
           </div>
           
-          <div className={`ml-4 transition-all duration-500 ${scale > 1 ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}>
+          <div className={`transition-all duration-500 ${scale > 1 ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'} hidden sm:block`}>
              <p className="text-white/40 text-[9px] font-black uppercase tracking-[2px] flex items-center gap-2">
                <span className="text-lg">🖱️</span> Role para Zoom • Arraste para mover
              </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-4 pointer-events-auto">
+        <div className="flex items-center gap-3 sm:gap-4 pointer-events-auto">
+          {/* Botão Zoom (Desktop Only) */}
           <button 
             onClick={handleZoomToggle}
-            className={`w-14 h-14 rounded-2xl border flex items-center justify-center transition-all shadow-2xl ${scale > 1 ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'}`}
+            className={`hidden sm:flex w-14 h-14 rounded-2xl border items-center justify-center transition-all shadow-2xl ${scale > 1 ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'}`}
           >
             <span className="text-2xl font-light">{scale > 1 ? '−' : '+'}</span>
           </button>
           <button 
             onClick={onClose}
-            className="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 text-4xl font-thin transition-all hover:bg-red-500 hover:text-white hover:rotate-90 shadow-2xl"
+            className="w-11 h-11 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 text-2xl sm:text-4xl font-thin transition-all hover:bg-red-500 hover:text-white shadow-2xl"
           >
             ×
           </button>

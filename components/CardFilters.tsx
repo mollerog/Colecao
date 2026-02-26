@@ -11,7 +11,6 @@ interface CardFiltersProps {
 const CardFilters: React.FC<CardFiltersProps> = ({ cards, activeFilters, setActiveFilters }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  // Fix: Explicitly type return value as string[] and use a type guard for filtering to avoid 'unknown[]' inference
   const getOptions = (key: keyof CreditCard): string[] => {
     const values = cards.map(c => String(c[key] || '').trim());
     const uniqueValues = Array.from(new Set<string>(values));
@@ -26,41 +25,53 @@ const CardFilters: React.FC<CardFiltersProps> = ({ cards, activeFilters, setActi
   };
 
   const FilterSelect = ({ label, field, options }: { label: string, field: keyof CreditCard, options: string[] }) => (
-    <div className="flex flex-col gap-1.5 min-w-[160px] flex-1">
-      <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">{label}</label>
+    <div className="relative flex-1 min-w-[120px]">
       <select 
         value={activeFilters[field] || ''} 
         onChange={e => updateFilter(field as string, e.target.value)}
-        className="w-full bg-gray-50 border border-gray-100 p-3 rounded-xl outline-none text-[11px] font-bold text-gray-700 cursor-pointer"
+        className="w-full bg-white text-indigo-600 px-4 py-3 rounded-[20px] text-[11px] font-black uppercase tracking-wider appearance-none outline-none cursor-pointer transition-all hover:bg-indigo-50 shadow-sm pr-10 truncate"
       >
-        <option value="">Todos</option>
+        <option value="">{label}</option>
         {options.map(o => <option key={o} value={o}>{o}</option>)}
       </select>
+      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-indigo-400 text-[10px]">
+        ▼
+      </div>
     </div>
   );
 
   return (
     <div className="w-full">
-      <div className="bg-white/95 rounded-2xl sm:rounded-[40px] p-1.5 sm:p-2 shadow-sm border border-white">
-        <button 
-          onClick={() => setIsOpen(!isOpen)}
-          className="w-full flex justify-between items-center px-4 py-3 sm:px-6 sm:py-4 hover:bg-gray-50/50 rounded-xl sm:rounded-[38px] transition-colors group"
-        >
-          <div className="flex items-center gap-3 sm:gap-4">
-            <span className="text-xl sm:text-2xl group-hover:scale-110 transition-transform">🔍</span>
-            <span className="text-sm sm:text-lg font-black text-slate-800 uppercase tracking-[2px] sm:tracking-[4px]">Filtros Avançados</span>
-          </div>
-          <div className={`text-slate-400 transition-all duration-300 ${isOpen ? 'rotate-180 text-indigo-600' : ''}`}>▼</div>
-        </button>
-        {isOpen && (
-          <div className="mt-6 pt-6 border-t flex flex-wrap gap-4 animate-in fade-in slide-in-from-top-2">
-            <FilterSelect label="Banco" field="issuer" options={getOptions('issuer')} />
-            <FilterSelect label="Bandeira" field="network" options={getOptions('network')} />
-            <FilterSelect label="Categoria" field="category" options={getOptions('category')} />
-            <FilterSelect label="Ano" field="year" options={getOptions('year')} />
-          </div>
-        )}
-      </div>
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full bg-white rounded-[24px] px-6 sm:px-10 py-2.5 flex items-center justify-between shadow-xl transition-all hover:bg-gray-50 group"
+      >
+        <div className="flex items-center gap-4">
+          <span className="text-xl sm:text-2xl">🔍</span>
+          <span className="text-sm sm:text-lg font-black text-slate-800 tracking-[2px] uppercase">Filtros Avançados</span>
+        </div>
+        <span className={`text-xl sm:text-2xl text-slate-400 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>
+          ▼
+        </span>
+      </button>
+
+      {isOpen && (
+        <div className="mt-6 flex flex-wrap justify-center items-center gap-3 w-full animate-in slide-in-from-top-4 duration-300">
+          <FilterSelect label="Banco" field="issuer" options={getOptions('issuer')} />
+          <FilterSelect label="Bandeira" field="network" options={getOptions('network')} />
+          <FilterSelect label="Categoria" field="category" options={getOptions('category')} />
+          <FilterSelect label="Ano" field="year" options={getOptions('year')} />
+          
+          {Object.keys(activeFilters).length > 0 && (
+            <button 
+              onClick={() => setActiveFilters({})}
+              className="px-6 py-3 bg-[#E11D48] text-white text-[11px] font-black uppercase tracking-widest rounded-[20px] hover:bg-red-700 transition-all shadow-lg"
+            >
+              Limpar Filtros
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 };

@@ -8,27 +8,27 @@ interface ToolbarProps {
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({ onClearAll, onOpenImport, onOpenExport }) => {
-  const btnBase = "px-3 sm:px-6 py-2.5 rounded-xl text-[10px] sm:text-[12px] font-bold flex items-center justify-center gap-1 sm:gap-2 transition-all hover:scale-[1.05] active:scale-[0.95] shadow-md whitespace-nowrap";
+  const btnBase = "px-2 sm:px-8 py-2 sm:py-2.5 rounded-[24px] text-[9px] sm:text-[12px] font-black uppercase tracking-wider flex items-center justify-center gap-1 sm:gap-2 transition-all hover:scale-[1.05] active:scale-[0.95] shadow-lg whitespace-nowrap";
 
   return (
-    <div className="flex flex-row justify-between sm:justify-center items-center gap-2 sm:gap-4 w-full">
+    <div className="flex flex-row justify-center items-center gap-2 sm:gap-6 w-full">
       <button 
         onClick={onOpenImport}
-        className={`${btnBase} bg-white text-indigo-600 flex-1 sm:flex-none`}
+        className={`${btnBase} bg-white text-indigo-600`}
       >
-        📥 <span className="hidden sm:inline">Importar</span><span className="sm:hidden">Imp.</span>
+        <span className="text-xs sm:text-sm">📥</span> Importar
       </button>
       <button 
         onClick={onOpenExport}
-        className={`${btnBase} bg-white text-indigo-600 flex-1 sm:flex-none`}
+        className={`${btnBase} bg-white text-indigo-600`}
       >
-        📤 <span className="hidden sm:inline">Exportar</span><span className="sm:hidden">Exp.</span>
+        <span className="text-xs sm:text-sm">📤</span> Exportar
       </button>
       <button 
         onClick={onClearAll}
-        className={`${btnBase} bg-red-600 text-white flex-1 sm:flex-none hidden sm:flex`}
+        className={`${btnBase} bg-[#E11D48] text-white`}
       >
-        🗑️ <span className="hidden sm:inline">Limpar</span><span className="sm:hidden">Limpar</span>
+        <span className="text-xs sm:text-sm">🗑️</span> Limpar
       </button>
     </div>
   );

@@ -30,22 +30,18 @@ const CardImportModal: React.FC<CardImportModalProps> = ({ db, user, onClose, cu
       const wb = (window as any).XLSX.utils.book_new();
       (window as any).XLSX.utils.book_append_sheet(wb, ws, "Template");
       
-      const wbout = (window as any).XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
-      const s2ab = (s: string) => {
-        const buf = new ArrayBuffer(s.length);
-        const view = new Uint8Array(buf);
-        for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
-        return buf;
-      };
-      const blob = new Blob([s2ab(wbout)], { type: 'application/octet-stream' });
+      const wbout = (window as any).XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = "template_cartoes.xlsx";
       document.body.appendChild(a);
       a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      }, 100);
     } catch (err) {
       console.error("Erro ao baixar template:", err);
       alert("Erro ao gerar arquivo de template.");
@@ -131,22 +127,26 @@ const CardImportModal: React.FC<CardImportModalProps> = ({ db, user, onClose, cu
     }
   };
 
+  const validRows = fileData.filter(r => r.cardName && r.issuer && r.network && r.imageDesc);
+  const invalidCount = fileData.length - validRows.length;
+
   const cardBaseClass = "group relative bg-white p-3 sm:p-6 rounded-[20px] sm:rounded-[32px] border-2 border-slate-100 hover:border-indigo-500 shadow-sm transition-all text-left flex flex-col items-center text-center gap-2 sm:gap-4 h-full min-h-[140px] sm:min-h-[240px] justify-center";
 
   return (
     <div className="fixed inset-0 z-[150] bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4">
       <div className="bg-white w-full max-w-6xl rounded-[40px] shadow-2xl flex flex-col max-h-[90vh] animate-in zoom-in duration-300">
-        <div className="p-6 sm:p-6 border-b flex justify-between items-center bg-indigo-600 text-white rounded-t-[40px]">
+        <div className="p-4 sm:p-6 border-b flex justify-between items-center bg-indigo-600 text-white rounded-t-[40px]">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-black tracking-tight">Hub de Importação</h2>
+            <h2 className="text-xl sm:text-2xl font-black tracking-tight">Hub de Importação</h2>
             <p className="text-white/60 font-bold text-[10px] sm:text-xs uppercase tracking-widest mt-1">Gerencie a entrada de novos cartões</p>
           </div>
           <button onClick={onClose} className="text-3xl font-thin text-white/40 hover:text-white transition-colors">×</button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6 sm:space-y-8 bg-gray-50/50">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6 bg-gray-50/50">
           {fileData.length === 0 ? (
             <div className="grid grid-cols-3 md:grid-cols-3 gap-3 sm:gap-6">
+              {/* Opção 1: Upload de Fotos */}
               <button onClick={onOpenBulk} className={cardBaseClass}>
                 <div className="w-10 h-10 sm:w-20 sm:h-20 bg-purple-50 rounded-2xl sm:rounded-3xl flex items-center justify-center text-xl sm:text-4xl group-hover:scale-110 transition-transform shadow-sm">📷</div>
                 <div className="flex-1">
@@ -155,6 +155,7 @@ const CardImportModal: React.FC<CardImportModalProps> = ({ db, user, onClose, cu
                 </div>
               </button>
 
+              {/* Opção 2: Importar Planilha Excel */}
               <div className={`${cardBaseClass} cursor-pointer`}>
                 <input type="file" accept=".xlsx,.xls,.csv" className="absolute inset-0 opacity-0 cursor-pointer z-20" onChange={handleFile} />
                 <div className="w-10 h-10 sm:w-20 sm:h-20 bg-indigo-50 rounded-2xl sm:rounded-3xl flex items-center justify-center text-xl sm:text-4xl group-hover:scale-110 transition-transform shadow-sm">📊</div>
@@ -164,6 +165,7 @@ const CardImportModal: React.FC<CardImportModalProps> = ({ db, user, onClose, cu
                 </div>
               </div>
 
+              {/* Opção 3: Baixar Template */}
               <button onClick={downloadTemplate} className={cardBaseClass}>
                 <div className="w-10 h-10 sm:w-20 sm:h-20 bg-orange-50 rounded-2xl sm:rounded-3xl flex items-center justify-center text-xl sm:text-4xl group-hover:scale-110 transition-transform shadow-sm">📄</div>
                 <div className="flex-1">
@@ -174,17 +176,23 @@ const CardImportModal: React.FC<CardImportModalProps> = ({ db, user, onClose, cu
             </div>
           ) : (
             <>
+              {/* Resumo da Importação */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
                 <div className="bg-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-sm border border-gray-100 text-center">
                   <p className="text-2xl sm:text-3xl font-black text-indigo-600 leading-none mb-2">{fileData.length}</p>
                   <p className="text-[8px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Detectado</p>
                 </div>
                 <div className="bg-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-sm border border-gray-100 text-center">
-                  <p className="text-2xl sm:text-3xl font-black text-green-500 leading-none mb-2">{fileData.length} Válidos</p>
-                  <p className="text-[8px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest">Preparados</p>
+                  <p className="text-2xl sm:text-3xl font-black text-green-500 leading-none mb-2">{validRows.length}</p>
+                  <p className="text-[8px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest">Válidos para Importar</p>
+                </div>
+                <div className="bg-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-sm border border-gray-100 text-center">
+                  <p className="text-2xl sm:text-3xl font-black text-red-400 leading-none mb-2">{invalidCount}</p>
+                  <p className="text-[8px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest">Campos Incompletos</p>
                 </div>
               </div>
 
+              {/* Estratégia */}
               <div className="bg-white p-6 sm:p-8 rounded-[24px] sm:rounded-[32px] shadow-sm border border-gray-100 space-y-4">
                 <h4 className="text-[10px] sm:text-sm font-black text-slate-800 uppercase tracking-widest">Escolha a Estratégia</h4>
                 <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
@@ -211,10 +219,12 @@ const CardImportModal: React.FC<CardImportModalProps> = ({ db, user, onClose, cu
                 </div>
               </div>
 
+              {/* Tabela de Preview */}
               <div className="bg-white rounded-[32px] shadow-sm border border-gray-100 overflow-hidden">
                 <table className="w-full text-left text-sm">
                   <thead className="bg-gray-50 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b">
                     <tr>
+                      <th className="px-6 py-4">Status</th>
                       <th className="px-6 py-4">Banco</th>
                       <th className="px-6 py-4">Cartão</th>
                       <th className="px-6 py-4">Bandeira</th>
@@ -222,16 +232,25 @@ const CardImportModal: React.FC<CardImportModalProps> = ({ db, user, onClose, cu
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50 font-medium">
-                    {fileData.slice(0, 8).map((row, i) => (
-                      <tr key={i} className="hover:bg-gray-50/50 transition-colors">
-                        <td className="px-6 py-4 text-slate-700">{row.issuer || '-'}</td>
-                        <td className="px-6 py-4 text-slate-600 font-bold">{row.cardName || '-'}</td>
-                        <td className="px-6 py-4 text-slate-400">{row.network || '-'}</td>
-                        <td className="px-6 py-4 text-slate-600">{row.category || '-'}</td>
-                      </tr>
-                    ))}
+                    {fileData.slice(0, 8).map((row, i) => {
+                      const isValid = row.cardName && row.issuer && row.network && row.imageDesc;
+                      return (
+                        <tr key={i} className="hover:bg-gray-50/50 transition-colors">
+                          <td className="px-6 py-4">{isValid ? '✅' : '⚠️'}</td>
+                          <td className="px-6 py-4 text-slate-700">{row.issuer || '-'}</td>
+                          <td className="px-6 py-4 text-slate-600 font-bold">{row.cardName || '-'}</td>
+                          <td className="px-6 py-4 text-slate-400">{row.network || '-'}</td>
+                          <td className="px-6 py-4 text-slate-600">{row.category || '-'}</td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
+                {fileData.length > 8 && (
+                  <p className="px-6 py-4 text-center text-xs text-gray-400 font-bold bg-gray-50/20">
+                    E mais {fileData.length - 8} itens...
+                  </p>
+                )}
               </div>
 
               <button 
@@ -244,7 +263,7 @@ const CardImportModal: React.FC<CardImportModalProps> = ({ db, user, onClose, cu
           )}
         </div>
 
-        <div className="p-6 sm:p-6 border-t flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 bg-white rounded-b-[40px]">
+        <div className="p-4 sm:p-4 border-t flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 bg-white rounded-b-[40px]">
           <button onClick={onClose} className="w-full sm:w-auto px-8 py-3 rounded-2xl font-bold text-gray-400 hover:text-gray-600 uppercase tracking-widest text-[10px] sm:text-xs transition-colors order-2 sm:order-1">Cancelar</button>
           {fileData.length > 0 && (
             <button 

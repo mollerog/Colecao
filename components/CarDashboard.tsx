@@ -46,6 +46,19 @@ const CarDashboard: React.FC<CarDashboardProps> = ({ user, cars, db, auth, syncS
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
+  const isAnyModalOpen = isModalOpen || isBulkOpen || isStatsOpen || isImportOpen || isExportOpen || !!detailCar || !!selectedImage;
+
+  useEffect(() => {
+    if (isAnyModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isAnyModalOpen]);
+
   const toggleSelect = (id: string) => {
     setSelectedIds(prev => {
       const next = new Set(prev);
@@ -124,6 +137,15 @@ const CarDashboard: React.FC<CarDashboardProps> = ({ user, cars, db, auth, syncS
     } catch (e) { alert("Erro ao salvar"); }
   };
 
+  const selectAllFiltered = () => {
+    const allFilteredIds = processedCars.map(c => c.id);
+    setSelectedIds(new Set(allFilteredIds));
+  };
+
+  const deselectAll = () => {
+    setSelectedIds(new Set());
+  };
+
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   const gridClass = {
@@ -142,20 +164,19 @@ const CarDashboard: React.FC<CarDashboardProps> = ({ user, cars, db, auth, syncS
 
   return (
     <div className="min-h-screen gradient-bg">
-      <header className="text-white pt-8 pb-12 px-4 text-center">
+      <header className="text-white pt-8 pb-6 px-4 text-center">
         <div className="max-w-7xl mx-auto flex flex-row justify-between items-center mb-8 px-4 gap-2">
           <button onClick={onBack} className="bg-white/20 hover:bg-white/30 text-[8px] sm:text-[10px] font-black uppercase tracking-[1px] sm:tracking-[2px] px-4 sm:px-8 py-3 rounded-full transition-all border border-white/10 whitespace-nowrap">← Menu Principal</button>
           <button onClick={() => setIsStatsOpen(true)} className="bg-white text-indigo-600 hover:scale-105 active:scale-95 text-[8px] sm:text-[10px] font-black uppercase tracking-[1px] sm:tracking-[2px] px-4 sm:px-8 py-3 rounded-full transition-all shadow-xl whitespace-nowrap">⭐ Estatísticas</button>
         </div>
-        <div className="flex flex-col items-center gap-2 mb-2">
+        <div className="flex flex-col items-center gap-4 mb-4">
           <div className="flex flex-col items-center justify-center gap-2">
              <span className="text-3xl sm:text-5xl drop-shadow-lg">🚗</span>
              <h1 className="text-4xl sm:text-6xl font-black tracking-tighter text-white text-center">Minhas Miniaturas</h1>
           </div>
-          <p className="text-white/60 text-xs sm:text-sm font-bold uppercase tracking-widest text-center">{user.email}</p>
           <button 
             onClick={() => { setEditingCar(null); setIsModalOpen(true); }}
-            className="sm:hidden mt-4 bg-[#F43F5E] hover:bg-[#E11D48] text-white px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-[2px] shadow-xl active:scale-95 transition-all flex items-center gap-2"
+            className="sm:hidden bg-[#F43F5E] hover:bg-[#E11D48] text-white px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-[2px] shadow-xl active:scale-95 transition-all flex items-center gap-2"
           >
             <span className="text-lg">+</span> ADICIONAR NOVO ITEM
           </button>
@@ -163,17 +184,23 @@ const CarDashboard: React.FC<CarDashboardProps> = ({ user, cars, db, auth, syncS
         <CarStatsCards cars={cars} />
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 pb-40 space-y-6">
-        <div className="max-w-7xl mx-auto bg-white/10 backdrop-blur-2xl border border-white/20 rounded-2xl sm:rounded-[40px] shadow-2xl p-4 sm:p-6 transition-all duration-300">
+      <main className="max-w-7xl mx-auto px-4 pb-40 space-y-4">
+        <div className="max-w-7xl mx-auto bg-white/10 backdrop-blur-2xl border border-white/20 rounded-[32px] shadow-2xl p-2 sm:p-3 transition-all duration-300">
            <Toolbar onOpenImport={() => setIsImportOpen(true)} onOpenExport={() => setIsExportOpen(true)} onClearAll={() => {}} />
         </div>
-        <div className="max-w-7xl mx-auto bg-white/10 backdrop-blur-2xl border border-white/20 rounded-2xl sm:rounded-[40px] shadow-2xl p-4 sm:p-6 transition-all duration-300">
+        <div className="max-w-7xl mx-auto bg-white/10 backdrop-blur-2xl border border-white/20 rounded-[32px] shadow-2xl p-2 sm:p-3 transition-all duration-300">
            <CarFilters cars={cars} activeFilters={activeFilters} setActiveFilters={setActiveFilters} />
         </div>
-        <div className="max-w-7xl mx-auto bg-white/10 backdrop-blur-2xl border border-white/20 rounded-2xl sm:rounded-[40px] shadow-2xl p-4 sm:p-6 transition-all duration-300">
-          <div className="bg-white/95 rounded-xl sm:rounded-[40px] p-1 sm:p-2 flex items-center relative overflow-hidden shadow-sm border border-white">
-            <span className="absolute left-4 sm:left-6 text-xl sm:text-2xl z-10">🔍</span>
-            <input type="text" placeholder="Pesquisar..." className="w-full pl-12 sm:pl-16 pr-4 sm:pr-6 py-3 sm:py-4 rounded-lg sm:rounded-[32px] bg-transparent outline-none text-base sm:text-xl font-bold text-gray-800 transition-all" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+        <div className="max-w-7xl mx-auto bg-white/10 backdrop-blur-2xl border border-white/20 rounded-[32px] shadow-2xl p-2 sm:p-3 transition-all duration-300">
+          <div className="bg-white rounded-[24px] flex items-center relative overflow-hidden shadow-xl border border-white">
+            <span className="absolute left-6 sm:left-10 text-xl sm:text-2xl z-10">🔍</span>
+            <input 
+              type="text" 
+              placeholder="Pesquisar..." 
+              className="w-full pl-16 sm:pl-24 pr-10 sm:pr-16 py-2.5 rounded-[24px] bg-transparent outline-none text-base sm:text-lg font-bold text-gray-800 transition-all" 
+              value={searchTerm} 
+              onChange={(e) => setSearchTerm(e.target.value)} 
+            />
           </div>
         </div>
 
@@ -189,7 +216,7 @@ const CarDashboard: React.FC<CarDashboardProps> = ({ user, cars, db, auth, syncS
         {/* Barra de Visualização e Ordenação */}
         <div className="flex flex-wrap justify-between sm:justify-end items-center gap-2 sm:gap-4 mb-8 px-2 sm:px-4 opacity-70 sm:opacity-50 transition-opacity hover:opacity-100">
           <div className="flex items-center gap-1.5 sm:gap-2">
-            <span className="hidden md:inline text-[7px] sm:text-[8px] font-black uppercase tracking-[1px] sm:tracking-[2px] text-white/50">VISUALIZAÇÃO</span>
+            <span className="text-[7px] sm:text-[8px] font-black uppercase tracking-[1px] sm:tracking-[2px] text-white/50">VISUALIZAR:</span>
             <div className="flex gap-0.5 items-center">
               {[
                 { id: 'grid', icon: '⠿' },
@@ -200,7 +227,7 @@ const CarDashboard: React.FC<CarDashboardProps> = ({ user, cars, db, auth, syncS
                 <button 
                   key={v.id}
                   onClick={() => setViewLayout(v.id as ViewLayout)}
-                  className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center transition-all ${viewLayout === v.id ? 'bg-white/10 text-white shadow-lg backdrop-blur-md' : 'text-white/30 hover:text-white/50'}`}
+                  className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center transition-all ${viewLayout === v.id ? 'bg-white/10 text-white shadow-lg backdrop-blur-md' : 'text-white/30 hover:text-white/50'} ${(v.id === 'grid' || v.id === 'compact') ? 'hidden sm:flex' : 'flex'}`}
                 >
                   <span className="text-base sm:text-lg">{v.icon}</span>
                 </button>
@@ -211,7 +238,7 @@ const CarDashboard: React.FC<CarDashboardProps> = ({ user, cars, db, auth, syncS
           <div className="hidden sm:block w-[1px] h-3 bg-white/10 mx-1"></div>
 
           <div className="flex items-center gap-1.5 sm:gap-2">
-             <span className="hidden md:inline text-[7px] sm:text-[8px] font-black uppercase tracking-[1px] sm:tracking-[2px] text-white/50">ORDENAR:</span>
+             <span className="text-[7px] sm:text-[8px] font-black uppercase tracking-[1px] sm:tracking-[2px] text-white/50">ORDENAR:</span>
              <div className="relative group">
                 <button className="text-[8px] sm:text-[9px] font-black uppercase tracking-[1px] text-white flex items-center gap-1 hover:opacity-100 transition-all whitespace-nowrap">
                   {sortLabels[sortBy]} <span className="text-[6px] opacity-40">▼</span>
@@ -265,9 +292,53 @@ const CarDashboard: React.FC<CarDashboardProps> = ({ user, cars, db, auth, syncS
         )}
       </main>
 
+      {isSelectionMode && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[70] w-[95%] max-w-2xl animate-in slide-in-from-bottom-10 duration-500">
+          <div className="bg-slate-900/90 backdrop-blur-2xl border border-white/20 rounded-3xl shadow-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="bg-indigo-500 text-white w-10 h-10 rounded-full flex items-center justify-center font-black shadow-lg shadow-indigo-500/40 animate-pulse">
+                {selectedIds.size}
+              </div>
+              <div className="flex flex-col">
+                <span className="text-white text-[10px] font-black uppercase tracking-widest leading-none">Selecionados</span>
+                <span className="text-white/40 text-[8px] font-bold uppercase tracking-tighter mt-1">Pronto para exportar</span>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <button 
+                onClick={selectAllFiltered}
+                className="flex-1 sm:flex-none px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white text-[9px] font-black uppercase tracking-widest rounded-xl transition-all border border-white/10"
+              >
+                Selecionar Tudo
+              </button>
+              <button 
+                onClick={deselectAll}
+                className="flex-1 sm:flex-none px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white text-[9px] font-black uppercase tracking-widest rounded-xl transition-all border border-white/10"
+              >
+                Limpar
+              </button>
+              <button 
+                onClick={() => setIsExportOpen(true)}
+                disabled={selectedIds.size === 0}
+                className="flex-1 sm:flex-none px-6 py-2.5 bg-indigo-500 hover:bg-indigo-600 disabled:opacity-30 text-white text-[9px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-indigo-500/20"
+              >
+                Exportar
+              </button>
+              <button 
+                onClick={() => { setIsSelectionMode(false); setSelectedIds(new Set()); }}
+                className="w-10 h-10 flex items-center justify-center text-white/40 hover:text-white transition-all"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <button 
         onClick={() => { setEditingCar(null); setIsModalOpen(true); }} 
-        className="fixed bottom-6 right-6 sm:bottom-12 sm:right-12 w-16 h-16 sm:w-24 sm:h-24 rounded-2xl sm:rounded-[32px] bg-[#F43F5E] shadow-2xl text-white text-4xl sm:text-6xl font-light flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-[60] border-2 sm:border-4 border-white/20"
+        className={`fixed bottom-6 right-6 sm:bottom-12 sm:right-12 w-16 h-16 sm:w-24 sm:h-24 rounded-2xl sm:rounded-[32px] bg-[#F43F5E] shadow-2xl text-white text-4xl sm:text-6xl font-light flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-[60] border-2 sm:border-4 border-white/20 ${isSelectionMode ? 'translate-x-40 opacity-0' : 'translate-x-0 opacity-100'}`}
       >
         +
       </button>

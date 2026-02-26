@@ -111,10 +111,6 @@ const CarCard: React.FC<CarCardProps> = ({
         <p className={`${isLarge ? 'text-lg sm:text-xl' : 'text-[12px] sm:text-[14px]'} font-bold text-indigo-600 leading-tight mb-0.5`}>{car.miniatureBrand} {car.line}</p>
         <h3 className={`${isLarge ? 'text-xl sm:text-2xl' : 'text-[14px] sm:text-[16px]'} font-bold text-gray-800 leading-tight mb-1 truncate`}>{car.minatureName}</h3>
         
-        <div className="mb-1 flex items-center">
-          <p className={`${isLarge ? 'text-base sm:text-lg' : 'text-[11px] sm:text-[13px]'} font-bold text-gray-500 leading-tight truncate uppercase tracking-tighter`}>{car.imageDesc}</p>
-        </div>
- 
         {car.description && <div className="mt-1"><p className="text-[10px] sm:text-[12px] font-medium text-gray-400 italic line-clamp-2">"{truncate(car.description, 80)}"</p></div>}
         <div className="h-[1px] bg-gray-50 w-full my-2 sm:my-3"></div>
         
@@ -142,6 +138,10 @@ const CarCard: React.FC<CarCardProps> = ({
           <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] overflow-hidden">
             <span className="text-sm sm:text-base shrink-0">📏</span>
             <span className="text-gray-400 font-medium truncate"><span className="text-gray-500 font-bold mr-1">Esc:</span>{car.scale}</span>
+          </div>
+          <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] overflow-hidden">
+            <span className="text-sm sm:text-base shrink-0">🖼️</span>
+            <span className="text-gray-400 font-medium truncate uppercase tracking-tighter"><span className="text-gray-500 font-bold mr-1">ID:</span>{car.imageDesc}</span>
           </div>
         </div>
         

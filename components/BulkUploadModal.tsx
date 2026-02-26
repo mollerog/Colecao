@@ -194,29 +194,29 @@ const BulkUploadModal: React.FC<BulkProps> = ({ cans, onClose, db, user }) => {
         </div>
 
         {/* Stats Row */}
-        <div className="grid grid-cols-4 gap-4 px-8 py-6 bg-[#F8FAFF] shrink-0">
-          <div className="text-center">
-            <p className="text-[20px] font-black text-red-500">{cansWithoutPhotoCount}</p>
-            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">Latas sem Foto</p>
+        <div className="grid grid-cols-4 divide-x divide-gray-100 px-2 sm:px-8 py-6 bg-[#F8FAFF] shrink-0 border-b border-gray-50">
+          <div className="text-center flex flex-col justify-between h-full px-1">
+            <p className="text-[18px] sm:text-[22px] font-black text-red-500 leading-none mb-2">{cansWithoutPhotoCount}</p>
+            <p className="text-[7px] sm:text-[9px] font-bold text-gray-400 uppercase tracking-tight sm:tracking-tighter leading-tight">Latas sem Foto</p>
           </div>
-          <div className="text-center border-l border-gray-100">
-            <p className="text-[20px] font-black text-[#6366F1]">{matches.length}</p>
-            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">Fotos Lidas</p>
+          <div className="text-center flex flex-col justify-between h-full px-1">
+            <p className="text-[18px] sm:text-[22px] font-black text-[#6366F1] leading-none mb-2">{matches.length}</p>
+            <p className="text-[7px] sm:text-[9px] font-bold text-gray-400 uppercase tracking-tight sm:tracking-tighter leading-tight">Imagens Selecionadas</p>
           </div>
-          <div className="text-center border-l border-gray-100">
-            <p className="text-[20px] font-black text-green-500">{matchedCount}</p>
-            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">Identificadas</p>
+          <div className="text-center flex flex-col justify-between h-full px-1">
+            <p className="text-[18px] sm:text-[22px] font-black text-green-500 leading-none mb-2">{matchedCount}</p>
+            <p className="text-[7px] sm:text-[9px] font-bold text-gray-400 uppercase tracking-tight sm:tracking-tighter leading-tight">Imagens Atribuídas</p>
           </div>
-          <div className="text-center border-l border-gray-100">
-            <p className="text-[20px] font-black text-amber-500">{unmatchedCount}</p>
-            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">Não Batidas</p>
+          <div className="text-center flex flex-col justify-between h-full px-1">
+            <p className="text-[18px] sm:text-[22px] font-black text-amber-500 leading-none mb-2">{unmatchedCount}</p>
+            <p className="text-[7px] sm:text-[9px] font-bold text-gray-400 uppercase tracking-tight sm:tracking-tighter leading-tight">Não Vinculadas</p>
           </div>
         </div>
 
         {/* Upload Area */}
         <div className="flex-1 overflow-y-auto p-8 flex flex-col">
           {matches.length === 0 ? (
-            <div className="flex-1 min-h-[250px] border-2 border-dashed border-[#6366F1]/30 rounded-[24px] bg-[#F8FAFF] flex flex-col items-center justify-center p-12 text-center relative hover:border-[#6366F1] transition-all group">
+            <div className="flex-1 min-h-[180px] sm:min-h-[250px] border-2 border-dashed border-[#6366F1]/30 rounded-[24px] bg-[#F8FAFF] flex flex-col items-center justify-center p-6 sm:p-12 text-center relative hover:border-[#6366F1] transition-all group">
               <input 
                 type="file" 
                 multiple 
@@ -225,13 +225,13 @@ const BulkUploadModal: React.FC<BulkProps> = ({ cans, onClose, db, user }) => {
                 disabled={processing}
                 className="absolute inset-0 opacity-0 cursor-pointer z-10" 
               />
-              <div className="bg-white p-5 rounded-2xl mb-4 shadow-sm group-hover:scale-110 transition-transform">
-                <svg className="w-12 h-12 text-[#6366F1]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="bg-white p-3 sm:p-5 rounded-2xl mb-3 sm:mb-4 shadow-sm group-hover:scale-110 transition-transform">
+                <svg className="w-8 h-8 sm:w-12 sm:h-12 text-[#6366F1]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-slate-800">Clique para selecionar as fotos</h3>
-              <p className="text-gray-400 text-sm mt-2 max-w-xs mx-auto">
+              <h3 className="text-lg sm:text-xl font-bold text-slate-800">Clique para selecionar as fotos</h3>
+              <p className="text-gray-400 text-[11px] sm:text-sm mt-1 sm:mt-2 max-w-xs mx-auto">
                 Certifique-se que o nome do arquivo seja igual ao campo 'Desc Imagem' (ex: coca-cola.jpg).
               </p>
             </div>

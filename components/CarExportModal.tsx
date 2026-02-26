@@ -110,76 +110,76 @@ const CarExportModal: React.FC<CarExportModalProps> = ({ allCars, selectedCars, 
   return (
     <div className="fixed inset-0 z-[150] bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4">
       <div className="bg-white w-full max-w-2xl rounded-[40px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in duration-300">
-        <div className="p-6 sm:p-10 border-b flex justify-between items-center bg-indigo-600 text-white">
+        <div className="p-4 sm:p-6 border-b flex justify-between items-center bg-indigo-600 text-white">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-black tracking-tight">Exportar Garagem</h2>
+            <h2 className="text-xl sm:text-2xl font-black tracking-tight">Exportar Garagem</h2>
             <p className="text-white/60 font-bold text-[10px] sm:text-xs uppercase tracking-widest mt-1">Gere relatórios e backups completos</p>
           </div>
           <button onClick={onClose} className="text-3xl font-thin text-white/40 hover:text-white transition-colors">×</button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 sm:p-10 space-y-6 sm:space-y-10">
-          <div className="space-y-4">
-            <h4 className="text-[10px] sm:text-sm font-black text-slate-800 uppercase tracking-widest">O que exportar?</h4>
-            <div className="flex gap-3 sm:gap-4">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
+          <div className="space-y-3">
+            <h4 className="text-[10px] sm:text-xs font-black text-slate-800 uppercase tracking-widest">O que exportar?</h4>
+            <div className="flex gap-2 sm:gap-4">
                <button 
                 onClick={() => setScope('all')}
-                className={`flex-1 p-4 sm:p-5 rounded-2xl border-2 transition-all text-left ${scope === 'all' ? 'border-indigo-500 bg-indigo-50/50' : 'border-gray-100 hover:border-gray-200'}`}
+                className={`flex-1 p-3 sm:p-4 rounded-2xl border-2 transition-all text-left ${scope === 'all' ? 'border-indigo-500 bg-indigo-50/50' : 'border-gray-100 hover:border-gray-200'}`}
                >
-                 <p className="font-bold text-slate-700 leading-tight text-sm sm:text-base">Toda a Garagem</p>
-                 <p className="text-[10px] sm:text-xs text-slate-400 font-bold">{allCars.length} itens</p>
+                 <p className="font-bold text-slate-700 leading-tight text-xs sm:text-base">Toda a Garagem</p>
+                 <p className="text-[9px] sm:text-xs text-slate-400 font-bold">{allCars.length} itens</p>
                </button>
                <button 
                 onClick={onEnterSelectionMode}
-                className={`flex-1 p-4 sm:p-5 rounded-2xl border-2 transition-all text-left ${scope === 'selected' ? 'border-indigo-500 bg-indigo-50/50' : 'border-gray-100 hover:border-gray-200'}`}
+                className={`flex-1 p-3 sm:p-4 rounded-2xl border-2 transition-all text-left ${scope === 'selected' ? 'border-indigo-500 bg-indigo-50/50' : 'border-gray-100 hover:border-gray-200'}`}
                >
-                 <p className="font-bold text-slate-700 leading-tight text-sm sm:text-base">Escolher na Grade</p>
-                 <p className="text-[10px] sm:text-xs text-slate-400 font-bold">Via Checkboxes</p>
+                 <p className="font-bold text-slate-700 leading-tight text-xs sm:text-base">Escolher na Grade</p>
+                 <p className="text-[9px] sm:text-xs text-slate-400 font-bold">Via Checkboxes</p>
                </button>
             </div>
             
             {selectedCars.length > 0 && (
               <button 
                 onClick={() => setScope('selected')}
-                className={`w-full p-4 rounded-2xl border-2 transition-all flex items-center justify-between ${scope === 'selected' ? 'border-green-500 bg-green-50/50' : 'border-gray-100'}`}
+                className={`w-full p-3 rounded-2xl border-2 transition-all flex items-center justify-between ${scope === 'selected' ? 'border-green-500 bg-green-50/50' : 'border-gray-100'}`}
               >
-                <span className="font-bold text-slate-700">✓ Usar Seleção Atual</span>
-                <span className="bg-green-500 text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">{selectedCars.length} ITENS</span>
+                <span className="font-bold text-slate-700 text-xs sm:text-base">✓ Usar Seleção Atual</span>
+                <span className="bg-green-500 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest">{selectedCars.length} ITENS</span>
               </button>
             )}
           </div>
 
-          <div className="space-y-4">
-            <h4 className="text-[10px] sm:text-sm font-black text-slate-800 uppercase tracking-widest">Escolha o Formato</h4>
-            <div className="grid grid-cols-3 sm:grid-cols-3 gap-3 sm:gap-4">
-              <button onClick={exportExcel} className="bg-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-gray-100 shadow-sm hover:shadow-md hover:scale-[1.03] transition-all flex flex-col items-center gap-2 sm:gap-3 group">
-                <div className="text-2xl sm:text-3xl group-hover:scale-110">📊</div>
+          <div className="space-y-3">
+            <h4 className="text-[10px] sm:text-xs font-black text-slate-800 uppercase tracking-widest">Escolha o Formato</h4>
+            <div className="grid grid-cols-3 sm:grid-cols-3 gap-2 sm:gap-4">
+              <button onClick={exportExcel} className="bg-white p-3 sm:p-4 rounded-2xl sm:rounded-3xl border border-gray-100 shadow-sm hover:shadow-md hover:scale-[1.03] transition-all flex flex-col items-center gap-1 sm:gap-2 group">
+                <div className="text-xl sm:text-2xl group-hover:scale-110">📊</div>
                 <div className="text-center">
-                  <p className="text-[9px] sm:text-[11px] font-black uppercase">Excel</p>
-                  <p className="hidden sm:block text-[9px] text-gray-400 font-bold uppercase tracking-tighter">Planilha</p>
+                  <p className="text-[8px] sm:text-[10px] font-black uppercase">Excel</p>
+                  <p className="hidden sm:block text-[8px] text-gray-400 font-bold uppercase tracking-tighter">Planilha</p>
                 </div>
               </button>
-              <button onClick={exportPDF} className="bg-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-gray-100 shadow-sm hover:shadow-md hover:scale-[1.03] transition-all flex flex-col items-center gap-2 sm:gap-3 group">
-                <div className="text-2xl sm:text-3xl group-hover:scale-110">📄</div>
+              <button onClick={exportPDF} className="bg-white p-3 sm:p-4 rounded-2xl sm:rounded-3xl border border-gray-100 shadow-sm hover:shadow-md hover:scale-[1.03] transition-all flex flex-col items-center gap-1 sm:gap-2 group">
+                <div className="text-xl sm:text-2xl group-hover:scale-110">📄</div>
                 <div className="text-center">
-                  <p className="text-[9px] sm:text-[11px] font-black uppercase">PDF</p>
-                  <p className="hidden sm:block text-[9px] text-gray-400 font-bold uppercase tracking-tighter">Catálogo</p>
+                  <p className="text-[8px] sm:text-[10px] font-black uppercase">PDF</p>
+                  <p className="hidden sm:block text-[8px] text-gray-400 font-bold uppercase tracking-tighter">Catálogo</p>
                 </div>
               </button>
-              <button onClick={exportZip} disabled={isExporting} className="bg-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-gray-100 shadow-sm hover:shadow-md hover:scale-[1.03] transition-all flex flex-col items-center gap-2 sm:gap-3 group relative overflow-hidden">
+              <button onClick={exportZip} disabled={isExporting} className="bg-white p-3 sm:p-4 rounded-2xl sm:rounded-3xl border border-gray-100 shadow-sm hover:shadow-md hover:scale-[1.03] transition-all flex flex-col items-center gap-1 sm:gap-2 group relative overflow-hidden">
                 {isExporting && <div className="absolute inset-0 bg-indigo-600/10 animate-pulse"></div>}
-                <div className="text-2xl sm:text-3xl group-hover:scale-110">📦</div>
+                <div className="text-xl sm:text-2xl group-hover:scale-110">📦</div>
                 <div className="text-center">
-                  <p className="text-[9px] sm:text-[11px] font-black uppercase">ZIP</p>
-                  <p className="hidden sm:block text-[9px] text-gray-400 font-bold uppercase tracking-tighter">Backup Full</p>
+                  <p className="text-[8px] sm:text-[10px] font-black uppercase">ZIP</p>
+                  <p className="hidden sm:block text-[8px] text-gray-400 font-bold uppercase tracking-tighter">Backup</p>
                 </div>
               </button>
             </div>
           </div>
         </div>
 
-        <div className="p-6 sm:p-8 bg-gray-50 flex justify-center">
-          <button onClick={onClose} className="text-[10px] font-black text-gray-400 uppercase tracking-[3px] hover:text-indigo-600">Fechar Janela</button>
+        <div className="p-4 sm:p-4 bg-gray-50 flex justify-center">
+          <button onClick={onClose} className="text-[9px] font-black text-gray-400 uppercase tracking-[2px] hover:text-indigo-600">Fechar Janela</button>
         </div>
       </div>
     </div>
