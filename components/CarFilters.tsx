@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { CarMiniature } from '../types';
 
 interface CarFiltersProps {
@@ -11,7 +11,16 @@ interface CarFiltersProps {
 const CarFilters: React.FC<CarFiltersProps> = ({ cars, activeFilters, setActiveFilters }) => {
   const [isOpen, setIsOpen] = useState(false);
   const getOptions = (key: keyof CarMiniature): string[] => {
-    const values = cars.map(c => String(c[key] || '').trim());
+    let filteredCars = [...cars];
+    
+    // Filter options based on OTHER active filters
+    Object.entries(activeFilters).forEach(([filterKey, filterValue]) => {
+      if (filterKey !== key && filterValue) {
+        filteredCars = filteredCars.filter(c => String((c as any)[filterKey] || '').trim() === String(filterValue).trim());
+      }
+    });
+
+    const values = filteredCars.map(c => String(c[key] || '').trim());
     return Array.from(new Set<string>(values)).filter((v): v is string => v !== '').sort();
   };
 
@@ -22,21 +31,53 @@ const CarFilters: React.FC<CarFiltersProps> = ({ cars, activeFilters, setActiveF
     setActiveFilters(next);
   };
 
-  const FilterSelect = ({ label, field, options }: { label: string, field: keyof CarMiniature, options: string[] }) => (
-    <div className="relative flex-1 min-w-[120px]">
-      <select 
-        value={activeFilters[field] || ''} 
-        onChange={e => updateFilter(field as string, e.target.value)}
-        className="w-full bg-white text-indigo-600 px-4 py-3 rounded-[20px] text-[11px] font-black uppercase tracking-wider appearance-none outline-none cursor-pointer transition-all hover:bg-indigo-50 shadow-sm pr-10 truncate"
-      >
-        <option value="">{label}</option>
-        {options.map(o => <option key={o} value={o}>{o}</option>)}
-      </select>
-      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-indigo-400 text-[10px]">
-        ▼
+  const FilterSelect = ({ label, field, options }: { label: string, field: keyof CarMiniature, options: string[] }) => {
+    const [isSelectOpen, setIsSelectOpen] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+    const currentValue = activeFilters[field] || '';
+
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+          setIsSelectOpen(false);
+        }
+      };
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    return (
+      <div className="relative flex-1 min-w-[140px]" ref={dropdownRef}>
+        <button
+          onClick={() => setIsSelectOpen(!isSelectOpen)}
+          className={`w-full bg-white text-indigo-600 px-4 py-3 rounded-[20px] text-[10px] sm:text-[11px] font-black uppercase tracking-wider outline-none cursor-pointer transition-all shadow-sm flex items-center justify-between gap-2 border-2 ${currentValue ? 'border-indigo-200' : 'border-transparent'} hover:border-indigo-100`}
+        >
+          <span className="truncate">{currentValue || label}</span>
+          <span className={`text-[8px] transition-transform duration-300 ${isSelectOpen ? 'rotate-180' : ''}`}>▼</span>
+        </button>
+
+        {isSelectOpen && (
+          <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-[20px] shadow-2xl border border-indigo-50 overflow-hidden z-[200] max-h-[300px] overflow-y-auto animate-in fade-in zoom-in duration-200">
+            <div 
+              className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:bg-indigo-50 cursor-pointer transition-colors border-b border-gray-50"
+              onClick={() => { updateFilter(field as string, ''); setIsSelectOpen(false); }}
+            >
+              {label} (Todos)
+            </div>
+            {options.map(o => (
+              <div 
+                key={o} 
+                className={`px-4 py-3 text-[10px] font-bold uppercase tracking-wider hover:bg-indigo-50 cursor-pointer transition-colors border-b border-gray-50 last:border-0 ${currentValue === o ? 'text-indigo-600 bg-indigo-50/50' : 'text-gray-600'}`}
+                onClick={() => { updateFilter(field as string, o); setIsSelectOpen(false); }}
+              >
+                {o}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="w-full">
@@ -54,7 +95,7 @@ const CarFilters: React.FC<CarFiltersProps> = ({ cars, activeFilters, setActiveF
       </button>
 
       {isOpen && (
-        <div className="mt-6 flex flex-wrap justify-center items-center gap-3 w-full animate-in slide-in-from-top-4 duration-300">
+        <div className="mt-6 flex flex-wrap justify-center items-center gap-3 w-full animate-in slide-in-from-top-4 duration-300 relative z-[70]">
           <FilterSelect label="Fabricante" field="miniatureBrand" options={getOptions('miniatureBrand')} />
           <FilterSelect label="Linha" field="line" options={getOptions('line')} />
           <FilterSelect label="Escala" field="scale" options={getOptions('scale')} />

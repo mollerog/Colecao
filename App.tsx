@@ -34,11 +34,39 @@ const App: React.FC = () => {
   const [view, setView] = useState<'menu' | 'cans' | 'achievements' | 'cards' | 'cars'>('menu');
   const [triggerAdd, setTriggerAdd] = useState(0);
 
+  // Handle browser back button
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      // If the state has a 'modal' flag, we let the component handle it
+      if (event.state && event.state.modal) return;
+
+      if (event.state && event.state.view) {
+        setView(event.state.view);
+      } else {
+        setView('menu');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const navigateTo = (newView: typeof view) => {
+    if (newView !== view) {
+      window.history.pushState({ view: newView }, '');
+      setView(newView);
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => {
       setUser(u);
       setLoading(false);
-      if (u) setView('menu');
+      if (u) {
+        // Reset history on login to menu
+        window.history.replaceState({ view: 'menu' }, '');
+        setView('menu');
+      }
     });
     return () => unsubscribe();
   }, []);
@@ -97,17 +125,17 @@ const App: React.FC = () => {
           cans={cans} 
           cards={cards}
           cars={carMiniatures}
-          onSelectCans={() => setView('cans')} 
-          onSelectCards={() => setView('cards')}
-          onSelectCars={() => setView('cars')}
-          onViewAchievements={() => setView('achievements')}
+          onSelectCans={() => navigateTo('cans')} 
+          onSelectCards={() => navigateTo('cards')}
+          onSelectCars={() => navigateTo('cars')}
+          onViewAchievements={() => navigateTo('achievements')}
           auth={auth}
         />
       )}
       {view === 'achievements' && (
         <AchievementsView 
           cans={cans} 
-          onBack={() => setView('menu')} 
+          onBack={() => window.history.back()} 
         />
       )}
       {view === 'cans' && (
@@ -117,7 +145,7 @@ const App: React.FC = () => {
           db={db} 
           auth={auth} 
           syncStatus={syncStatus}
-          onBack={() => setView('menu')}
+          onBack={() => window.history.back()}
           externalAddTrigger={triggerAdd}
         />
       )}
@@ -128,7 +156,7 @@ const App: React.FC = () => {
           db={db} 
           auth={auth} 
           syncStatus={syncStatus}
-          onBack={() => setView('menu')}
+          onBack={() => window.history.back()}
           externalAddTrigger={triggerAdd}
         />
       )}
@@ -139,7 +167,7 @@ const App: React.FC = () => {
           db={db} 
           auth={auth} 
           syncStatus={syncStatus}
-          onBack={() => setView('menu')}
+          onBack={() => window.history.back()}
           externalAddTrigger={triggerAdd}
         />
       )}

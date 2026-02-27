@@ -48,6 +48,53 @@ const CarDashboard: React.FC<CarDashboardProps> = ({ user, cars, db, auth, syncS
 
   const isAnyModalOpen = isModalOpen || isBulkOpen || isStatsOpen || isImportOpen || isExportOpen || !!detailCar || !!selectedImage;
 
+  // Handle back button to close modals
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      if (isAnyModalOpen) {
+        setIsModalOpen(false);
+        setIsBulkOpen(false);
+        setIsStatsOpen(false);
+        setIsImportOpen(false);
+        setIsExportOpen(false);
+        setEditingCar(null);
+        setDetailCar(null);
+        setSelectedImage(null);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [isAnyModalOpen]);
+
+  // Helper to open modals with history state
+  const openModal = (setter: (v: boolean) => void) => {
+    if (!isAnyModalOpen) {
+      window.history.pushState({ modal: true, view: 'cars' }, '');
+    }
+    setter(true);
+  };
+
+  const openDetail = (car: CarMiniature) => {
+    if (!isAnyModalOpen) {
+      window.history.pushState({ modal: true, view: 'cars' }, '');
+    }
+    setDetailCar(car);
+  };
+
+  const openImage = (url: string) => {
+    if (!isAnyModalOpen) {
+      window.history.pushState({ modal: true, view: 'cars' }, '');
+    }
+    setSelectedImage(url);
+  };
+
+  const closeAllModals = () => {
+    if (isAnyModalOpen) {
+      window.history.back();
+    }
+  };
+
   useEffect(() => {
     if (isAnyModalOpen) {
       document.body.style.overflow = 'hidden';
@@ -188,7 +235,7 @@ const CarDashboard: React.FC<CarDashboardProps> = ({ user, cars, db, auth, syncS
         <div className="max-w-7xl mx-auto bg-white/10 backdrop-blur-2xl border border-white/20 rounded-[32px] shadow-2xl p-2 sm:p-3 transition-all duration-300">
            <Toolbar onOpenImport={() => setIsImportOpen(true)} onOpenExport={() => setIsExportOpen(true)} onClearAll={() => {}} />
         </div>
-        <div className="max-w-7xl mx-auto bg-white/10 backdrop-blur-2xl border border-white/20 rounded-[32px] shadow-2xl p-2 sm:p-3 transition-all duration-300">
+        <div className="max-w-7xl mx-auto bg-white/10 backdrop-blur-2xl border border-white/20 rounded-[32px] shadow-2xl p-2 sm:p-3 transition-all duration-300 relative z-[60]">
            <CarFilters cars={cars} activeFilters={activeFilters} setActiveFilters={setActiveFilters} />
         </div>
         <div className="max-w-7xl mx-auto bg-white/10 backdrop-blur-2xl border border-white/20 rounded-[32px] shadow-2xl p-2 sm:p-3 transition-all duration-300">

@@ -48,6 +48,53 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
 
   const isAnyModalOpen = isModalOpen || isBulkOpen || isStatsOpen || isImportOpen || isExportOpen || !!detailCan || !!selectedImage;
 
+  // Handle back button to close modals
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      if (isAnyModalOpen) {
+        setIsModalOpen(false);
+        setIsBulkOpen(false);
+        setIsStatsOpen(false);
+        setIsImportOpen(false);
+        setIsExportOpen(false);
+        setEditingCan(null);
+        setDetailCan(null);
+        setSelectedImage(null);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [isAnyModalOpen]);
+
+  // Helper to open modals with history state
+  const openModal = (setter: (v: boolean) => void) => {
+    if (!isAnyModalOpen) {
+      window.history.pushState({ modal: true, view: 'cans' }, '');
+    }
+    setter(true);
+  };
+
+  const openDetail = (can: Can) => {
+    if (!isAnyModalOpen) {
+      window.history.pushState({ modal: true, view: 'cans' }, '');
+    }
+    setDetailCan(can);
+  };
+
+  const openImage = (url: string) => {
+    if (!isAnyModalOpen) {
+      window.history.pushState({ modal: true, view: 'cans' }, '');
+    }
+    setSelectedImage(url);
+  };
+
+  const closeAllModals = () => {
+    if (isAnyModalOpen) {
+      window.history.back();
+    }
+  };
+
   useEffect(() => {
     if (isAnyModalOpen) {
       document.body.style.overflow = 'hidden';
@@ -177,7 +224,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
       <header className="text-white pt-8 pb-6 px-4 text-center">
         <div className="max-w-7xl mx-auto flex flex-row justify-between items-center mb-8 px-4 gap-2">
           <button onClick={onBack} className="bg-white/20 hover:bg-white/30 text-[8px] sm:text-[10px] font-black uppercase tracking-[1px] sm:tracking-[2px] px-4 sm:px-8 py-3 rounded-full transition-all border border-white/10 whitespace-nowrap">← Menu Principal</button>
-          <button onClick={() => setIsStatsOpen(true)} className="bg-white text-indigo-600 hover:scale-105 active:scale-95 text-[8px] sm:text-[10px] font-black uppercase tracking-[1px] sm:tracking-[2px] px-4 sm:px-8 py-3 rounded-full transition-all shadow-xl whitespace-nowrap">⭐ Estatísticas</button>
+          <button onClick={() => openModal(setIsStatsOpen)} className="bg-white text-indigo-600 hover:scale-105 active:scale-95 text-[8px] sm:text-[10px] font-black uppercase tracking-[1px] sm:tracking-[2px] px-4 sm:px-8 py-3 rounded-full transition-all shadow-xl whitespace-nowrap">⭐ Estatísticas</button>
         </div>
         <div className="flex flex-col items-center gap-4 mb-4">
           <div className="flex flex-col items-center justify-center gap-2">
@@ -185,7 +232,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
              <h1 className="text-4xl sm:text-6xl font-black tracking-tighter text-white text-center">Minha coleção de latas</h1>
           </div>
           <button 
-            onClick={() => { setEditingCan(null); setIsModalOpen(true); }}
+            onClick={() => { setEditingCan(null); openModal(setIsModalOpen); }}
             className="sm:hidden bg-[#F43F5E] hover:bg-[#E11D48] text-white px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-[2px] shadow-xl active:scale-95 transition-all flex items-center gap-2"
           >
             <span className="text-lg">+</span> ADICIONAR NOVO ITEM
@@ -196,9 +243,9 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
 
       <main className="max-w-7xl mx-auto px-4 pb-40 space-y-4">
         <div className="max-w-7xl mx-auto bg-white/10 backdrop-blur-2xl border border-white/20 rounded-[32px] shadow-2xl p-2 sm:p-3 transition-all duration-300">
-           <Toolbar onOpenImport={() => setIsImportOpen(true)} onOpenExport={() => setIsExportOpen(true)} onClearAll={() => {}} />
+           <Toolbar onOpenImport={() => openModal(setIsImportOpen)} onOpenExport={() => openModal(setIsExportOpen)} onClearAll={() => {}} />
         </div>
-        <div className="max-w-7xl mx-auto bg-white/10 backdrop-blur-2xl border border-white/20 rounded-[32px] shadow-2xl p-2 sm:p-3 transition-all duration-300">
+        <div className="max-w-7xl mx-auto bg-white/10 backdrop-blur-2xl border border-white/20 rounded-[32px] shadow-2xl p-2 sm:p-3 transition-all duration-300 relative z-[60]">
           <Filters cans={cans} activeFilters={activeFilters} setActiveFilters={setActiveFilters} />
         </div>
         <div className="max-w-7xl mx-auto bg-white/10 backdrop-blur-2xl border border-white/20 rounded-[32px] shadow-2xl p-2 sm:p-3 transition-all duration-300">
@@ -289,10 +336,10 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
                 key={can.id} 
                 can={can} 
                 variant={viewLayout}
-                onEdit={() => { setEditingCan(can); setIsModalOpen(true); }}
+                onEdit={() => { setEditingCan(can); openModal(setIsModalOpen); }}
                 onDelete={() => handleDelete(can.id)}
-                onViewImage={(url) => setSelectedImage(url)}
-                onViewDetail={() => setDetailCan(can)}
+                onViewImage={(url) => openImage(url)}
+                onViewDetail={() => openDetail(can)}
                 isSelected={selectedIds.has(can.id)}
                 onToggleSelect={() => { setIsSelectionMode(true); toggleSelect(can.id); }}
                 isSelectionMode={isSelectionMode}
@@ -356,16 +403,16 @@ const Dashboard: React.FC<DashboardProps> = ({ user, cans, db, auth, syncStatus,
       {selectedImage && (
         <FullScreenViewer 
           imageUrl={selectedImage} 
-          onClose={() => setSelectedImage(null)} 
+          onClose={closeAllModals} 
         />
       )}
 
-      {isModalOpen && <CanModal can={editingCan} onClose={() => setIsModalOpen(false)} onSave={handleSave} />}
-      {detailCan && <CanDetailModal can={detailCan} onClose={() => setDetailCan(null)} onEdit={() => { setEditingCan(detailCan); setIsModalOpen(true); }} onDelete={() => handleDelete(detailCan.id)} onViewImage={(url) => setSelectedImage(url)} />}
-      {isBulkOpen && <BulkUploadModal cans={cans} onClose={() => setIsBulkOpen(false)} db={db} user={user} />}
-      {isStatsOpen && <StatsCharts cans={cans} onClose={() => setIsStatsOpen(false)} />}
-      {isImportOpen && <ImportModal db={db} user={user} onClose={() => setIsImportOpen(false)} currentCount={cans.length} onOpenBulk={() => { setIsImportOpen(false); setIsBulkOpen(true); }} />}
-      {isExportOpen && <ExportModal allCans={cans} selectedCans={cans.filter(c => selectedIds.has(c.id))} onClose={() => setIsExportOpen(false)} onEnterSelectionMode={() => { setIsExportOpen(false); setIsSelectionMode(true); }} />}
+      {isModalOpen && <CanModal can={editingCan} onClose={closeAllModals} onSave={handleSave} />}
+      {detailCan && <CanDetailModal can={detailCan} onClose={closeAllModals} onEdit={() => { setEditingCan(detailCan); openModal(setIsModalOpen); }} onDelete={() => handleDelete(detailCan.id)} onViewImage={(url) => openImage(url)} />}
+      {isBulkOpen && <BulkUploadModal cans={cans} onClose={closeAllModals} db={db} user={user} />}
+      {isStatsOpen && <StatsCharts cans={cans} onClose={closeAllModals} />}
+      {isImportOpen && <ImportModal db={db} user={user} onClose={closeAllModals} currentCount={cans.length} onOpenBulk={() => { closeAllModals(); openModal(setIsBulkOpen); }} />}
+      {isExportOpen && <ExportModal allCans={cans} selectedCans={cans.filter(c => selectedIds.has(c.id))} onClose={closeAllModals} onEnterSelectionMode={() => { closeAllModals(); setIsSelectionMode(true); }} />}
     </div>
   );
 };

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Can } from '../types';
 
 interface FiltersProps {
@@ -14,7 +14,23 @@ const Filters: React.FC<FiltersProps> = ({ cans, activeFilters, setActiveFilters
   const [isOpen, setIsOpen] = useState(false);
 
   const getOptions = (key: keyof Can): string[] => {
-    const uniqueValues: string[] = Array.from(new Set<string>(cans.map((c: Can) => String(c[key] || '').trim()))).filter((v): v is string => v !== '');
+    let filteredCans = [...cans];
+    
+    // Filter options based on OTHER active filters
+    Object.entries(activeFilters).forEach(([filterKey, filterValue]) => {
+      if (filterKey !== key && filterValue) {
+        if (filterValue === BLANK_VALUE) {
+          filteredCans = filteredCans.filter(c => {
+            const val = (c as any)[filterKey];
+            return val === undefined || val === null || String(val).trim() === '';
+          });
+        } else {
+          filteredCans = filteredCans.filter(c => String((c as any)[filterKey] || '').trim() === String(filterValue).trim());
+        }
+      }
+    });
+
+    const uniqueValues: string[] = Array.from(new Set<string>(filteredCans.map((c: Can) => String(c[key] || '').trim()))).filter((v): v is string => v !== '');
     
     if (key === 'year') {
       return [...uniqueValues].sort((a, b) => {
@@ -45,22 +61,59 @@ const Filters: React.FC<FiltersProps> = ({ cans, activeFilters, setActiveFilters
     setActiveFilters(next);
   };
 
-  const FilterSelect = ({ label, icon, field, options }: { label: string, icon: string, field: keyof Can, options: string[] }) => (
-    <div className="relative flex-1 min-w-[120px]">
-      <select 
-        value={activeFilters[field] || ''} 
-        onChange={e => updateFilter(field as string, e.target.value)}
-        className="w-full bg-white text-indigo-600 px-4 py-3 rounded-[20px] text-[11px] font-black uppercase tracking-wider appearance-none outline-none cursor-pointer transition-all hover:bg-indigo-50 shadow-sm pr-10 truncate"
-      >
-        <option value="">{label}</option>
-        <option value={BLANK_VALUE}>[ Vazio ]</option>
-        {options.map(o => <option key={o} value={o}>{o}</option>)}
-      </select>
-      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-indigo-400 text-[10px]">
-        ▼
+  const FilterSelect = ({ label, icon, field, options }: { label: string, icon: string, field: keyof Can, options: string[] }) => {
+    const [isSelectOpen, setIsSelectOpen] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+    const currentValue = activeFilters[field] || '';
+
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+          setIsSelectOpen(false);
+        }
+      };
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    return (
+      <div className="relative flex-1 min-w-[140px]" ref={dropdownRef}>
+        <button
+          onClick={() => setIsSelectOpen(!isSelectOpen)}
+          className={`w-full bg-white text-indigo-600 px-4 py-3 rounded-[20px] text-[10px] sm:text-[11px] font-black uppercase tracking-wider outline-none cursor-pointer transition-all shadow-sm flex items-center justify-between gap-2 border-2 ${currentValue ? 'border-indigo-200' : 'border-transparent'} hover:border-indigo-100`}
+        >
+          <span className="truncate">{currentValue === BLANK_VALUE ? '[ Vazio ]' : (currentValue || label)}</span>
+          <span className={`text-[8px] transition-transform duration-300 ${isSelectOpen ? 'rotate-180' : ''}`}>▼</span>
+        </button>
+
+        {isSelectOpen && (
+          <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-[20px] shadow-2xl border border-indigo-50 overflow-hidden z-[200] max-h-[300px] overflow-y-auto animate-in fade-in zoom-in duration-200">
+            <div 
+              className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:bg-indigo-50 cursor-pointer transition-colors border-b border-gray-50"
+              onClick={() => { updateFilter(field as string, ''); setIsSelectOpen(false); }}
+            >
+              {label} (Todos)
+            </div>
+            <div 
+              className={`px-4 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-indigo-50 cursor-pointer transition-colors border-b border-gray-50 ${currentValue === BLANK_VALUE ? 'text-indigo-600 bg-indigo-50/50' : 'text-gray-600'}`}
+              onClick={() => { updateFilter(field as string, BLANK_VALUE); setIsSelectOpen(false); }}
+            >
+              [ Vazio ]
+            </div>
+            {options.map(o => (
+              <div 
+                key={o} 
+                className={`px-4 py-3 text-[10px] font-bold uppercase tracking-wider hover:bg-indigo-50 cursor-pointer transition-colors border-b border-gray-50 last:border-0 ${currentValue === o ? 'text-indigo-600 bg-indigo-50/50' : 'text-gray-600'}`}
+                onClick={() => { updateFilter(field as string, o); setIsSelectOpen(false); }}
+              >
+                {o}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="w-full">
@@ -78,7 +131,7 @@ const Filters: React.FC<FiltersProps> = ({ cans, activeFilters, setActiveFilters
       </button>
 
       {isOpen && (
-        <div className="mt-6 flex flex-wrap justify-center items-center gap-3 w-full animate-in slide-in-from-top-4 duration-300">
+        <div className="mt-6 flex flex-wrap justify-center items-center gap-3 w-full animate-in slide-in-from-top-4 duration-300 relative z-[70]">
           <FilterSelect label="Grupo" icon="🏢" field="group" options={getOptions('group')} />
           <FilterSelect label="Sigla" icon="🔠" field="acronym" options={getOptions('acronym')} />
           <FilterSelect label="Marca" icon="🥤" field="brand" options={getOptions('brand')} />

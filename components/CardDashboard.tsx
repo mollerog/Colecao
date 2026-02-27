@@ -48,6 +48,53 @@ const CardDashboard: React.FC<CardDashboardProps> = ({ user, cards, db, auth, sy
 
   const isAnyModalOpen = isModalOpen || isBulkOpen || isStatsOpen || isImportOpen || isExportOpen || !!detailCard || !!selectedImage;
 
+  // Handle back button to close modals
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      if (isAnyModalOpen) {
+        setIsModalOpen(false);
+        setIsBulkOpen(false);
+        setIsStatsOpen(false);
+        setIsImportOpen(false);
+        setIsExportOpen(false);
+        setEditingCard(null);
+        setDetailCard(null);
+        setSelectedImage(null);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [isAnyModalOpen]);
+
+  // Helper to open modals with history state
+  const openModal = (setter: (v: boolean) => void) => {
+    if (!isAnyModalOpen) {
+      window.history.pushState({ modal: true, view: 'cards' }, '');
+    }
+    setter(true);
+  };
+
+  const openDetail = (card: CreditCard) => {
+    if (!isAnyModalOpen) {
+      window.history.pushState({ modal: true, view: 'cards' }, '');
+    }
+    setDetailCard(card);
+  };
+
+  const openImage = (url: string) => {
+    if (!isAnyModalOpen) {
+      window.history.pushState({ modal: true, view: 'cards' }, '');
+    }
+    setSelectedImage(url);
+  };
+
+  const closeAllModals = () => {
+    if (isAnyModalOpen) {
+      window.history.back();
+    }
+  };
+
   useEffect(() => {
     if (isAnyModalOpen) {
       document.body.style.overflow = 'hidden';
@@ -164,7 +211,7 @@ const CardDashboard: React.FC<CardDashboardProps> = ({ user, cards, db, auth, sy
       <header className="text-white pt-8 pb-6 px-4 text-center">
         <div className="max-w-7xl mx-auto flex flex-row justify-between items-center mb-8 px-4 gap-2">
           <button onClick={onBack} className="bg-white/20 hover:bg-white/30 text-[8px] sm:text-[10px] font-black uppercase tracking-[1px] sm:tracking-[2px] px-4 sm:px-8 py-3 rounded-full transition-all border border-white/10 whitespace-nowrap">← Menu Principal</button>
-          <button onClick={() => setIsStatsOpen(true)} className="bg-white text-indigo-600 hover:scale-105 active:scale-95 text-[8px] sm:text-[10px] font-black uppercase tracking-[1px] sm:tracking-[2px] px-4 sm:px-8 py-3 rounded-full transition-all shadow-xl whitespace-nowrap">⭐ Estatísticas</button>
+          <button onClick={() => openModal(setIsStatsOpen)} className="bg-white text-indigo-600 hover:scale-105 active:scale-95 text-[8px] sm:text-[10px] font-black uppercase tracking-[1px] sm:tracking-[2px] px-4 sm:px-8 py-3 rounded-full transition-all shadow-xl whitespace-nowrap">⭐ Estatísticas</button>
         </div>
         <div className="flex flex-col items-center gap-4 mb-4">
           <div className="flex flex-col items-center justify-center gap-2">
@@ -172,7 +219,7 @@ const CardDashboard: React.FC<CardDashboardProps> = ({ user, cards, db, auth, sy
              <h1 className="text-4xl sm:text-6xl font-black tracking-tighter text-white text-center">Meus Cartões</h1>
           </div>
           <button 
-            onClick={() => { setEditingCard(null); setIsModalOpen(true); }}
+            onClick={() => { setEditingCard(null); openModal(setIsModalOpen); }}
             className="sm:hidden bg-[#F43F5E] hover:bg-[#E11D48] text-white px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-[2px] shadow-xl active:scale-95 transition-all flex items-center gap-2"
           >
             <span className="text-lg">+</span> ADICIONAR NOVO ITEM
@@ -183,9 +230,9 @@ const CardDashboard: React.FC<CardDashboardProps> = ({ user, cards, db, auth, sy
 
       <main className="max-w-7xl mx-auto px-4 pb-40 space-y-4">
         <div className="max-w-7xl mx-auto bg-white/10 backdrop-blur-2xl border border-white/20 rounded-[32px] shadow-2xl p-2 sm:p-3 transition-all duration-300">
-           <Toolbar onOpenImport={() => setIsImportOpen(true)} onOpenExport={() => setIsExportOpen(true)} onClearAll={() => {}} />
+           <Toolbar onOpenImport={() => openModal(setIsImportOpen)} onOpenExport={() => openModal(setIsExportOpen)} onClearAll={() => {}} />
         </div>
-        <div className="max-w-7xl mx-auto bg-white/10 backdrop-blur-2xl border border-white/20 rounded-[32px] shadow-2xl p-2 sm:p-3 transition-all duration-300">
+        <div className="max-w-7xl mx-auto bg-white/10 backdrop-blur-2xl border border-white/20 rounded-[32px] shadow-2xl p-2 sm:p-3 transition-all duration-300 relative z-[60]">
           <CardFilters cards={cards} activeFilters={activeFilters} setActiveFilters={setActiveFilters} />
         </div>
         <div className="max-w-7xl mx-auto bg-white/10 backdrop-blur-2xl border border-white/20 rounded-[32px] shadow-2xl p-2 sm:p-3 transition-all duration-300">
@@ -276,10 +323,10 @@ const CardDashboard: React.FC<CardDashboardProps> = ({ user, cards, db, auth, sy
                 key={card.id} 
                 card={card} 
                 variant={viewLayout}
-                onEdit={() => { setEditingCard(card); setIsModalOpen(true); }}
+                onEdit={() => { setEditingCard(card); openModal(setIsModalOpen); }}
                 onDelete={() => handleDelete(card.id)}
-                onViewImage={(url) => setSelectedImage(url)}
-                onViewDetail={() => setDetailCard(card)}
+                onViewImage={(url) => openImage(url)}
+                onViewDetail={() => openDetail(card)}
                 isSelected={selectedIds.has(card.id)}
                 onToggleSelect={() => { setIsSelectionMode(true); toggleSelect(card.id); }}
                 isSelectionMode={isSelectionMode}
@@ -334,7 +381,7 @@ const CardDashboard: React.FC<CardDashboardProps> = ({ user, cards, db, auth, sy
       )}
 
       <button 
-        onClick={() => { setEditingCard(null); setIsModalOpen(true); }} 
+        onClick={() => { setEditingCard(null); openModal(setIsModalOpen); }} 
         className={`fixed bottom-6 right-6 sm:bottom-12 sm:right-12 w-16 h-16 sm:w-24 sm:h-24 rounded-2xl sm:rounded-[32px] bg-[#F43F5E] shadow-2xl text-white text-4xl sm:text-6xl font-light flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-[60] border-2 sm:border-4 border-white/20 ${isSelectionMode ? 'translate-x-40 opacity-0' : 'translate-x-0 opacity-100'}`}
       >
         +
@@ -343,16 +390,16 @@ const CardDashboard: React.FC<CardDashboardProps> = ({ user, cards, db, auth, sy
       {selectedImage && (
         <FullScreenViewer 
           imageUrl={selectedImage} 
-          onClose={() => setSelectedImage(null)} 
+          onClose={closeAllModals} 
         />
       )}
 
-      {isModalOpen && <CardModal card={editingCard} onClose={() => setIsModalOpen(false)} onSave={handleSave} />}
-      {detailCard && <CardDetailModal card={detailCard} onClose={() => setDetailCard(null)} onEdit={() => { setEditingCard(detailCard); setIsModalOpen(true); }} onDelete={() => handleDelete(detailCard.id)} onViewImage={(url) => setSelectedImage(url)} />}
-      {isStatsOpen && <CardStatsCharts cards={cards} onClose={() => setIsStatsOpen(false)} />}
-      {isImportOpen && <CardImportModal db={db} user={user} onClose={() => setIsImportOpen(false)} currentCount={cards.length} onOpenBulk={() => { setIsImportOpen(false); setIsBulkOpen(true); }} />}
-      {isExportOpen && <CardExportModal allCards={cards} selectedCards={cards.filter(c => selectedIds.has(c.id))} onClose={() => setIsExportOpen(false)} onEnterSelectionMode={() => { setIsExportOpen(false); setIsSelectionMode(true); }} />}
-      {isBulkOpen && <CardBulkUploadModal cards={cards} onClose={() => setIsBulkOpen(false)} db={db} user={user} />}
+      {isModalOpen && <CardModal card={editingCard} onClose={closeAllModals} onSave={handleSave} />}
+      {detailCard && <CardDetailModal card={detailCard} onClose={closeAllModals} onEdit={() => { setEditingCard(detailCard); openModal(setIsModalOpen); }} onDelete={() => handleDelete(detailCard.id)} onViewImage={(url) => openImage(url)} />}
+      {isStatsOpen && <CardStatsCharts cards={cards} onClose={closeAllModals} />}
+      {isImportOpen && <CardImportModal db={db} user={user} onClose={closeAllModals} currentCount={cards.length} onOpenBulk={() => { closeAllModals(); openModal(setIsBulkOpen); }} />}
+      {isExportOpen && <CardExportModal allCards={cards} selectedCards={cards.filter(c => selectedIds.has(c.id))} onClose={closeAllModals} onEnterSelectionMode={() => { closeAllModals(); setIsSelectionMode(true); }} />}
+      {isBulkOpen && <CardBulkUploadModal cards={cards} onClose={closeAllModals} db={db} user={user} />}
     </div>
   );
 };
